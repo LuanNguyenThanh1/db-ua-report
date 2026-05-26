@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creative Performance Dashboard</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #21262d;
+    --border: #30363d;
+    --text: #c9d1d9;
+    --muted: #8b949e;
+    --blue: #58a6ff;
+    --green: #3fb950;
+    --orange: #e3b341;
+    --purple: #bc8cff;
+    --red: #f85149;
+    --tw-toeic: #58a6ff;
+    --tw-ielts: #3fb950;
+    --kr-toeic: #e3b341;
+    --hk-ielts: #bc8cff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 13px;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface);
+  }
+  header h1 { font-size: 15px; font-weight: 600; color: #fff; }
+  .badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 12px;
+    letter-spacing: 0.5px;
+  }
+  .badge-meta { background: #1877f2; color: #fff; }
+
+  /* ── Controls ── */
+  .controls {
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    background: var(--surface);
+  }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-weight: 600;
+  }
+  input[type="password"],
+  input[type="date"],
+  input[type="text"],
+  select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  input[type="password"] { width: 280px; font-family: monospace; letter-spacing: 1px; }
+  input[type="date"] { width: 136px; color-scheme: dark; }
+  input:focus, select:focus { border-color: var(--blue); }
+
+  .btn {
+    padding: 7px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: opacity 0.15s, background 0.15s;
+  }
+  .btn-primary { background: var(--blue); color: #000; }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+  .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+
+  /* ── Account tabs ── */
+  .account-bar {
+    padding: 10px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+    background: var(--surface);
+  }
+  .acct-tab {
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    background: transparent;
+    transition: all 0.15s;
+  }
+  .acct-tab:hover { color: var(--text); border-color: var(--muted); }
+  .acct-tab.active[data-id="all"] { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .acct-tab.active[data-id="1111393931138906"] { background: var(--tw-toeic); color: #000; border-color: var(--tw-toeic); }
+  .acct-tab.active[data-id="2090575994804393"] { background: var(--tw-ielts); color: #000; border-color: var(--tw-ielts); }
+  .acct-tab.active[data-id="1716494985672878"] { background: var(--kr-toeic); color: #000; border-color: var(--kr-toeic); }
+  .acct-tab.active[data-id="863928576666135"] { background: var(--hk-ielts); color: #000; border-color: var(--hk-ielts); }
+
+  /* ── KPI Cards ── */
+  .kpi-row {
+    display: flex;
+    gap: 1px;
+    background: var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .kpi-card {
+    flex: 1;
+    background: var(--surface);
+    padding: 14px 18px;
+    min-width: 110px;
+  }
+  .kpi-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; font-weight: 600; margin-bottom: 6px; }
+  .kpi-value { font-size: 20px; font-weight: 700; color: #fff; line-height: 1; }
+  .kpi-sub { font-size: 10px; color: var(--muted); margin-top: 4px; }
+
+  /* ── Table toolbar ── */
+  .toolbar {
+    padding: 12px 24px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  #search { width: 240px; }
+  .count-badge {
+    font-size: 11px;
+    color: var(--muted);
+    padding: 3px 10px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  .spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--border);
+    border-top-color: var(--blue);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 4px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Table ── */
+  .table-wrap { overflow-x: auto; padding: 0 24px 32px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  thead th {
+    background: var(--surface);
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    padding: 8px 10px;
+    text-align: right;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--border);
+    position: sticky;
+    top: 0;
+    cursor: pointer;
+    user-select: none;
+  }
+  thead th:first-child { text-align: left; min-width: 240px; }
+  thead th:hover { color: var(--text); }
+  thead th.sorted { color: var(--blue); }
+  thead th .si { font-size: 9px; margin-left: 2px; opacity: 0.5; }
+  thead th.sorted .si { opacity: 1; }
+
+  tbody tr { border-bottom: 1px solid var(--border); }
+  tbody tr:hover { background: rgba(255,255,255,0.03); }
+  tbody td { padding: 7px 10px; text-align: right; vertical-align: middle; }
+  tbody td:first-child { text-align: left; }
+
+  .ad-name {
+    display: block;
+    font-weight: 500;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 280px;
+    font-size: 12px;
+  }
+  .ad-meta { font-size: 10px; color: var(--muted); margin-top: 1px; display: flex; gap: 6px; align-items: center; }
+  .acct-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  .na { color: var(--muted); }
+  .rate-bar {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .rate-track {
+    width: 40px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .rate-fill { height: 100%; border-radius: 2px; }
+
+  /* ── Empty / Error states ── */
+  .state-box {
+    text-align: center;
+    padding: 60px 24px;
+    color: var(--muted);
+  }
+  .state-box .icon { font-size: 32px; margin-bottom: 12px; }
+  .state-box p { font-size: 13px; }
+  .error-box {
+    margin: 16px 24px;
+    background: rgba(248,81,73,0.08);
+    border: 1px solid rgba(248,81,73,0.4);
+    color: #ffa8a8;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  /* ── Status bar ── */
+  #status-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 6px 24px;
+    font-size: 11px;
+    color: var(--muted);
+    z-index: 100;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Creative Performance</h1>
+  <span class="badge badge-meta">Meta Ads</span>
+</header>
+
+<!-- Controls -->
+<div class="controls">
+  <div class="field">
+    <label>Access Token</label>
+    <input type="password" id="token" placeholder="EAAxxxxxxxxx..." autocomplete="off">
+  </div>
+  <div class="field">
+    <label>From</label>
+    <input type="date" id="date-from">
+  </div>
+  <div class="field">
+    <label>To</label>
+    <input type="date" id="date-to">
+  </div>
+  <div class="field">
+    <label>&nbsp;</label>
+    <button class="btn btn-primary" id="fetch-btn" onclick="fetchAll()">Fetch Data</button>
+  </div>
+  <div class="field">
+    <label>&nbsp;</label>
+    <button class="btn btn-ghost" onclick="exportCSV()">↓ CSV</button>
+  </div>
+</div>
+
+<!-- Account selector -->
+<div class="account-bar">
+  <button class="acct-tab active" data-id="all" onclick="setAccount('all',this)">All accounts</button>
+  <button class="acct-tab" data-id="1111393931138906" onclick="setAccount('1111393931138906',this)">TW - TOEIC 03</button>
+  <button class="acct-tab" data-id="2090575994804393" onclick="setAccount('2090575994804393',this)">TW - IELTS 2</button>
+  <button class="acct-tab" data-id="1716494985672878" onclick="setAccount('1716494985672878',this)">KR - TOEIC</button>
+  <button class="acct-tab" data-id="863928576666135" onclick="setAccount('863928576666135',this)">HK - IELTS</button>
+</div>
+
+<!-- KPI row -->
+<div class="kpi-row">
+  <div class="kpi-card"><div class="kpi-label">Spend</div><div class="kpi-value" id="kpi-spend">—</div></div>
+  <div class="kpi-card"><div class="kpi-label">Results</div><div class="kpi-value" id="kpi-results">—</div></div>
+  <div class="kpi-card"><div class="kpi-label">CPR</div><div class="kpi-value" id="kpi-cpr">—</div><div class="kpi-sub">Cost/result</div></div>
+  <div class="kpi-card"><div class="kpi-label">CPM</div><div class="kpi-value" id="kpi-cpm">—</div></div>
+  <div class="kpi-card"><div class="kpi-label">CTR</div><div class="kpi-value" id="kpi-ctr">—</div></div>
+  <div class="kpi-card"><div class="kpi-label">Hook Rate</div><div class="kpi-value" id="kpi-hook">—</div><div class="kpi-sub">3s / impr</div></div>
+  <div class="kpi-card"><div class="kpi-label">Hold Rate</div><div class="kpi-value" id="kpi-hold">—</div><div class="kpi-sub">p50 / impr</div></div>
+</div>
+
+<!-- Toolbar + table -->
+<div class="toolbar">
+  <input type="text" id="search" placeholder="Search ad name…" oninput="rerender()">
+  <span class="count-badge" id="row-count">0 ads</span>
+</div>
+<div id="error-area"></div>
+<div class="table-wrap">
+  <div id="table-area">
+    <div class="state-box">
+      <div class="icon">📊</div>
+      <p>Enter token + date range → Fetch Data</p>
+    </div>
+  </div>
+</div>
+
+<div id="status-bar">Ready</div>
+
+<script>
+// ── Config ──────────────────────────────────────────────────────────────────
+const ACCOUNTS = {
+  '1111393931138906': { name: 'TW - TOEIC 03', color: '#58a6ff' },
+  '2090575994804393': { name: 'TW - IELTS 2',  color: '#3fb950' },
+  '1716494985672878': { name: 'KR - TOEIC',    color: '#e3b341' },
+  '863928576666135':  { name: 'HK - IELTS',    color: '#bc8cff' },
+};
+
+const API_FIELDS = [
+  'ad_id', 'ad_name',
+  'spend', 'impressions', 'clicks',
+  'cpc', 'cpm', 'ctr',
+  'results',   // primary result per ad — event-specific, matches Ads Manager
+  'actions',   // needed for video_view (3s views)
+  'video_p50_watched_actions',
+].join(',');
+
+const API_VERSION = 'v21.0';
+
+// ── State ────────────────────────────────────────────────────────────────────
+let allRows = [];
+let sortCol  = 'spend';
+let sortDir  = 'desc';
+let activeAcct = 'all';
+
+// ── Init dates ───────────────────────────────────────────────────────────────
+(function initDates() {
+  const today = new Date();
+  const from  = new Date(today);
+  from.setDate(from.getDate() - 7);
+  document.getElementById('date-from').value = from.toISOString().slice(0, 10);
+  document.getElementById('date-to').value   = today.toISOString().slice(0, 10);
+  const saved = sessionStorage.getItem('meta_token');
+  if (saved) document.getElementById('token').value = saved;
+})();
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+const setStatus = msg => document.getElementById('status-bar').textContent = msg;
+
+function getActionVal(actionsArr) {
+  if (!actionsArr || !actionsArr.length) return 0;
+  // Actions arrays from Meta have items like [{action_type, value}]
+  const item = actionsArr[0];
+  return parseInt(item?.value ?? 0) || 0;
+}
+
+const ACTION_LABELS = {
+  'InitiateCheckout':     'Begin-checkout',
+  'EntryTestResult':      'EntryTestResult',
+  'Purchase':             'Purchase',
+  'Lead':                 'Lead',
+  'CompleteRegistration': 'Completed Registration',
+  'ViewContent':          'View Content',
+  'AddToCart':            'Add-to-cart',
+  'Subscribe':            'Subscribe',
+  'StartTrial':           'Start-trial',
+  'Contact':              'Contact',
+};
+
+// Extract human label from Meta indicator string.
+// indicator examples:
+//   "conversions:offsite_conversion.fb_pixel_custom.EntryTestResult"
+//   "actions:offsite_conversion.custom.2990620707796144"
+function labelFromIndicator(indicator) {
+  if (!indicator) return '';
+  if (indicator.includes('.custom.')) return 'Custom Conv.';
+  const last = indicator.split('.').pop();
+  return ACTION_LABELS[last] || last;
+}
+
+// results field from raw API = [{indicator:"conversions:offsite_conversion.fb_pixel_custom.EntryTestResult"}]
+// indicator tells us WHAT event = label source. NO count inside results.
+// count comes from actions array: offsite_conversion.fb_pixel_custom entry.
+function parseResultsField(resultsData, actionsArr) {
+  // Extract label from indicator
+  let label = '';
+  if (Array.isArray(resultsData) && resultsData.length > 0) {
+    label = labelFromIndicator(resultsData[0].indicator || '');
+  }
+
+  // Extract count from actions
+  const actions = actionsArr || [];
+  const pixelCustom = actions.find(a => a.action_type === 'offsite_conversion.fb_pixel_custom');
+  if (pixelCustom) return { count: parseInt(pixelCustom.value) || 0, label };
+
+  const customConv = actions.find(a => a.action_type?.startsWith('offsite_conversion.custom.'));
+  if (customConv) return { count: parseInt(customConv.value) || 0, label };
+
+  return { count: 0, label };
+}
+
+// ── Fetch one account (handles pagination) ───────────────────────────────────
+async function fetchAccount(accountId, token, since, until) {
+  const rows = [];
+  let url = `https://graph.facebook.com/${API_VERSION}/act_${accountId}/insights`
+    + `?level=ad`
+    + `&fields=${encodeURIComponent(API_FIELDS)}`
+    + `&time_range=${encodeURIComponent(JSON.stringify({ since, until }))}`
+    + `&action_attribution_windows=${encodeURIComponent('["7d_click","1d_view"]')}`
+    + `&limit=200`
+    + `&access_token=${encodeURIComponent(token)}`;
+
+  let page = 0;
+  while (url) {
+    page++;
+    setStatus(`${ACCOUNTS[accountId].name} — page ${page}…`);
+    const res  = await fetch(url);
+    const json = await res.json();
+
+    if (json.error) throw new Error(`[${ACCOUNTS[accountId].name}] ${json.error.message}`);
+
+    // DEBUG — remove after fix
+    if (page === 1 && json.data?.length) {
+      const s = json.data[0];
+      console.log('[DEBUG] results JSON:', JSON.stringify(s.results));
+      console.log('[DEBUG] actions JSON:', JSON.stringify(s.actions));
+    }
+
+    for (const d of json.data || []) {
+      const impressions   = parseInt(d.impressions) || 0;
+      const spend         = parseFloat(d.spend)     || 0;
+      const threeSecViews = (d.actions || []).reduce((s, a) => a.action_type === 'video_view' ? s + (parseInt(a.value) || 0) : s, 0);
+      const p50Views      = getActionVal(d.video_p50_watched_actions);
+      const { count: results, label: resultLabel } = parseResultsField(d.results, d.actions);
+
+      rows.push({
+        accountId,
+        adId:       d.ad_id,
+        adName:     d.ad_name || '—',
+        spend,
+        impressions,
+        clicks:     parseInt(d.clicks)  || 0,
+        cpc:        parseFloat(d.cpc)   || 0,
+        cpm:        parseFloat(d.cpm)   || 0,
+        ctr:        parseFloat(d.ctr)   || 0,
+        results,
+        resultLabel,
+        threeSecViews,
+        p50Views,
+        hookRate: impressions > 0 ? threeSecViews / impressions : null,
+        holdRate: impressions > 0 ? p50Views      / impressions : null,
+        cpr:      results > 0     ? spend / results             : null,
+      });
+    }
+
+    url = json.paging?.next ?? null;
+  }
+
+  return rows;
+}
+
+// ── Fetch all accounts ────────────────────────────────────────────────────────
+async function fetchAll() {
+  const token = document.getElementById('token').value.trim();
+  const since = document.getElementById('date-from').value;
+  const until = document.getElementById('date-to').value;
+
+  if (!token) { alert('Enter access token first'); return; }
+  if (!since || !until) { alert('Select date range'); return; }
+
+  sessionStorage.setItem('meta_token', token);
+
+  const btn = document.getElementById('fetch-btn');
+  btn.disabled    = true;
+  btn.textContent = 'Loading…';
+  document.getElementById('error-area').innerHTML = '';
+  document.getElementById('table-area').innerHTML =
+    '<div class="state-box"><div><span class="spinner"></span> Fetching data…</div></div>';
+
+  allRows = [];
+
+  try {
+    for (const id of Object.keys(ACCOUNTS)) {
+      const rows = await fetchAccount(id, token, since, until);
+      allRows.push(...rows);
+    }
+    setStatus(`Loaded ${allRows.length.toLocaleString()} ads · ${since} → ${until}`);
+    rerender();
+  } catch (e) {
+    document.getElementById('error-area').innerHTML =
+      `<div class="error-box">⚠ ${e.message}</div>`;
+    document.getElementById('table-area').innerHTML = '';
+    setStatus('Error — see above');
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = 'Fetch Data';
+  }
+}
+
+// ── Account tab ──────────────────────────────────────────────────────────────
+function setAccount(id, el) {
+  activeAcct = id;
+  document.querySelectorAll('.acct-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  rerender();
+}
+
+// ── Sort ─────────────────────────────────────────────────────────────────────
+function setSort(col) {
+  if (sortCol === col) sortDir = sortDir === 'desc' ? 'asc' : 'desc';
+  else { sortCol = col; sortDir = 'desc'; }
+  rerender();
+}
+
+// ── Re-render ────────────────────────────────────────────────────────────────
+function rerender() {
+  const query = document.getElementById('search').value.toLowerCase().trim();
+
+  // Filter
+  let rows = allRows.filter(r => {
+    if (activeAcct !== 'all' && r.accountId !== activeAcct) return false;
+    if (query && !r.adName.toLowerCase().includes(query) && !r.adId.includes(query)) return false;
+    return true;
+  });
+
+  // Sort
+  const NULL_VAL = sortDir === 'desc' ? -Infinity : Infinity;
+  rows.sort((a, b) => {
+    const av = a[sortCol] ?? NULL_VAL;
+    const bv = b[sortCol] ?? NULL_VAL;
+    return sortDir === 'desc' ? bv - av : av - bv;
+  });
+
+  document.getElementById('row-count').textContent = `${rows.length} ads`;
+  updateKPIs(rows);
+  renderTable(rows);
+}
+
+// ── KPIs ─────────────────────────────────────────────────────────────────────
+function updateKPIs(rows) {
+  const totalSpend   = rows.reduce((s, r) => s + r.spend,         0);
+  const totalResults = rows.reduce((s, r) => s + r.results,       0);
+  const totalImpr    = rows.reduce((s, r) => s + r.impressions,   0);
+  const totalClicks  = rows.reduce((s, r) => s + r.clicks,        0);
+  const total3sec    = rows.reduce((s, r) => s + r.threeSecViews, 0);
+  const totalP50     = rows.reduce((s, r) => s + r.p50Views,      0);
+
+  const fmt = (n, prefix = '', suffix = '') => n > 0 ? `${prefix}${n.toFixed(2)}${suffix}` : '—';
+
+  document.getElementById('kpi-spend').textContent   = totalSpend > 0   ? `$${totalSpend.toFixed(0)}`                    : '—';
+  document.getElementById('kpi-results').textContent = totalResults > 0  ? totalResults.toLocaleString()                  : '—';
+  document.getElementById('kpi-cpr').textContent     = totalResults > 0  ? `$${(totalSpend / totalResults).toFixed(2)}`   : '—';
+  document.getElementById('kpi-cpm').textContent     = totalImpr > 0     ? `$${(totalSpend / totalImpr * 1000).toFixed(2)}` : '—';
+  document.getElementById('kpi-ctr').textContent     = totalImpr > 0     ? `${(totalClicks / totalImpr * 100).toFixed(2)}%` : '—';
+  document.getElementById('kpi-hook').textContent    = totalImpr > 0     ? `${(total3sec / totalImpr * 100).toFixed(1)}%`   : '—';
+  document.getElementById('kpi-hold').textContent    = totalImpr > 0     ? `${(totalP50  / totalImpr * 100).toFixed(1)}%`   : '—';
+}
+
+// ── Table ────────────────────────────────────────────────────────────────────
+const COLS = [
+  { key: 'adName',      label: 'Ad',          align: 'left',  fmt: null },
+  { key: 'spend',       label: 'Spend',        align: 'right', fmt: r => r.spend  > 0 ? `$${r.spend.toFixed(2)}`  : '<span class="na">—</span>' },
+  { key: 'results',     label: 'Results',      align: 'right', fmt: r => r.results > 0
+      ? `${r.results.toLocaleString()}${r.resultLabel ? `<br><span style="font-size:10px;color:var(--muted);font-weight:400">${r.resultLabel}</span>` : ''}`
+      : '<span class="na">0</span>' },
+  { key: 'cpr',         label: 'CPR',          align: 'right', fmt: r => r.cpr    !== null ? `$${r.cpr.toFixed(2)}` : '<span class="na">—</span>' },
+  { key: 'cpm',         label: 'CPM',          align: 'right', fmt: r => r.cpm    > 0 ? `$${r.cpm.toFixed(2)}`  : '<span class="na">—</span>' },
+  { key: 'cpc',         label: 'CPC',          align: 'right', fmt: r => r.cpc    > 0 ? `$${r.cpc.toFixed(2)}`  : '<span class="na">—</span>' },
+  { key: 'ctr',         label: 'CTR %',        align: 'right', fmt: r => r.ctr    > 0 ? `${r.ctr.toFixed(2)}%`  : '<span class="na">—</span>' },
+  { key: 'hookRate',    label: 'Hook Rate',    align: 'right', fmt: r => fmtRate(r.hookRate, '#58a6ff') },
+  { key: 'holdRate',    label: 'Hold Rate',    align: 'right', fmt: r => fmtRate(r.holdRate, '#3fb950') },
+  { key: 'impressions', label: 'Impr',         align: 'right', fmt: r => r.impressions.toLocaleString() },
+];
+
+function fmtRate(val, color) {
+  if (val === null) return '<span class="na">—</span>';
+  const pct = (val * 100).toFixed(1);
+  const w   = Math.min(val * 100 * 2, 100); // scale: 50% fill = 100% bar
+  return `<div class="rate-bar">
+    <span>${pct}%</span>
+    <div class="rate-track"><div class="rate-fill" style="width:${w}%;background:${color}"></div></div>
+  </div>`;
+}
+
+function renderTable(rows) {
+  if (!rows.length && allRows.length === 0) return; // still waiting for data
+
+  if (!rows.length) {
+    document.getElementById('table-area').innerHTML =
+      '<div class="state-box"><p>No ads match the current filter.</p></div>';
+    return;
+  }
+
+  const headers = COLS.map(c => {
+    const isSorted = c.key === sortCol;
+    const icon = isSorted ? (sortDir === 'desc' ? '▼' : '▲') : '⇅';
+    return `<th class="${isSorted ? 'sorted' : ''}" onclick="setSort('${c.key}')"
+              style="text-align:${c.align}">${c.label} <span class="si">${icon}</span></th>`;
+  }).join('');
+
+  const bodyRows = rows.map(r => {
+    const acct  = ACCOUNTS[r.accountId];
+    const cells = COLS.map(c => {
+      if (c.key === 'adName') {
+        return `<td>
+          <span class="ad-name" title="${escHtml(r.adName)}">${escHtml(r.adName)}</span>
+          <div class="ad-meta">
+            <span class="acct-dot" style="background:${acct.color}"></span>
+            <span style="color:${acct.color}">${acct.name}</span>
+            <span>${r.adId}</span>
+          </div>
+        </td>`;
+      }
+      return `<td style="text-align:right">${c.fmt(r)}</td>`;
+    }).join('');
+    return `<tr>${cells}</tr>`;
+  }).join('');
+
+  document.getElementById('table-area').innerHTML = `
+    <table>
+      <thead><tr>${headers}</tr></thead>
+      <tbody>${bodyRows}</tbody>
+    </table>`;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Export CSV ────────────────────────────────────────────────────────────────
+function exportCSV() {
+  const query  = document.getElementById('search').value.toLowerCase().trim();
+  const rows   = allRows.filter(r => {
+    if (activeAcct !== 'all' && r.accountId !== activeAcct) return false;
+    if (query && !r.adName.toLowerCase().includes(query)) return false;
+    return true;
+  });
+
+  if (!rows.length) { alert('No data to export'); return; }
+
+  const header = ['Ad Name','Ad ID','Account','Spend','Results','CPR','CPM','CPC','CTR%','Hook Rate%','Hold Rate%','Impressions','Clicks'].join(',');
+  const lines  = rows.map(r => [
+    `"${r.adName.replace(/"/g,'""')}"`,
+    r.adId,
+    `"${ACCOUNTS[r.accountId].name}"`,
+    r.spend.toFixed(2),
+    r.results,
+    r.cpr !== null ? r.cpr.toFixed(2) : '',
+    r.cpm.toFixed(2),
+    r.cpc.toFixed(2),
+    r.ctr.toFixed(2),
+    r.hookRate !== null ? (r.hookRate * 100).toFixed(2) : '',
+    r.holdRate !== null ? (r.holdRate * 100).toFixed(2) : '',
+    r.impressions,
+    r.clicks,
+  ].join(','));
+
+  const csv  = [header, ...lines].join('\n');
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const since = document.getElementById('date-from').value;
+  const until = document.getElementById('date-to').value;
+  link.href     = URL.createObjectURL(blob);
+  link.download = `creative_perf_${since}_${until}.csv`;
+  link.click();
+}
+</script>
+</body>
+</html>
