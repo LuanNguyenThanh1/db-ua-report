@@ -280,6 +280,10 @@
     <input type="password" id="token" placeholder="EAAxxxxxxxxx..." autocomplete="off">
   </div>
   <div class="field">
+    <label>Apps Script URL (orders)</label>
+    <input type="text" id="sheet-url" placeholder="https://script.google.com/macros/s/…/exec" style="width:320px">
+  </div>
+  <div class="field">
     <label>From</label>
     <input type="date" id="date-from">
   </div>
@@ -309,6 +313,8 @@
 <!-- KPI row -->
 <div class="kpi-row">
   <div class="kpi-card"><div class="kpi-label">Spend</div><div class="kpi-value" id="kpi-spend">—</div></div>
+  <div class="kpi-card"><div class="kpi-label">Revenue</div><div class="kpi-value" id="kpi-revenue">—</div></div>
+  <div class="kpi-card"><div class="kpi-label">ROAS</div><div class="kpi-value" id="kpi-roas">—</div><div class="kpi-sub">revenue / spend</div></div>
   <div class="kpi-card"><div class="kpi-label">Results</div><div class="kpi-value" id="kpi-results">—</div></div>
   <div class="kpi-card"><div class="kpi-label">CPR</div><div class="kpi-value" id="kpi-cpr">—</div><div class="kpi-sub">Cost/result</div></div>
   <div class="kpi-card"><div class="kpi-label">CPM</div><div class="kpi-value" id="kpi-cpm">—</div></div>
@@ -355,7 +361,8 @@ const API_FIELDS = [
 const API_VERSION = 'v21.0';
 
 // ── State ────────────────────────────────────────────────────────────────────
-let allRows = [];
+let allRows  = [];
+let sheetMap = {}; // utm_content → {orders, revenue}
 let sortCol  = 'spend';
 let sortDir  = 'desc';
 let activeAcct = 'all';
@@ -369,10 +376,60 @@ let activeAcct = 'all';
   document.getElementById('date-to').value   = today.toISOString().slice(0, 10);
   const saved = sessionStorage.getItem('meta_token');
   if (saved) document.getElementById('token').value = saved;
+  const DEFAULT_SHEET = '';
+  const savedSheet = sessionStorage.getItem('sheet_url') || DEFAULT_SHEET;
+  document.getElementById('sheet-url').value = savedSheet;
 })();
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const setStatus = msg => document.getElementById('status-bar').textContent = msg;
+
+// Parse a single CSV line (handles quoted fields)
+function parseCSVLine(line) {
+  const result = []; let cur = ''; let inQ = false;
+  for (const ch of line) {
+    if (ch === '"') { inQ = !inQ; continue; }
+    if (ch === ',' && !inQ) { result.push(cur.trim()); cur = ''; continue; }
+    cur += ch;
+  }
+  result.push(cur.trim());
+  return result;
+}
+
+// Fetch via Apps Script Web App → build sheetMap {utm_content_lower → {orders, revenue}}
+// Apps Script returns JSON: { "tw.122025c10": { orders: 3, revenue: 4197 }, ... }
+async function fetchSheetData(rawUrl, from, to) {
+  if (!rawUrl || !rawUrl.trim()) return;
+  let url = rawUrl.trim();
+  const params = [];
+  if (from) params.push(`from=${from}`);
+  if (to)   params.push(`to=${to}`);
+  if (params.length) url += (url.includes('?') ? '&' : '?') + params.join('&');
+  setStatus('Fetching sheet data…');
+  try {
+    const res  = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    sheetMap = {};
+    for (const [key, val] of Object.entries(json)) {
+      const k = key.toLowerCase().trim();
+      if (!k || k === '-' || k === 'n/a') continue;
+      sheetMap[k] = { orders: val.orders || 0, revenue: val.revenue || 0 };
+    }
+    console.log('[Sheet] loaded:', Object.keys(sheetMap).length, 'utm keys', sheetMap);
+  } catch (e) {
+    console.warn('[Sheet] fetch failed:', e.message);
+  }
+}
+
+// Case-insensitive startsWith match: adName "TW.122025C10 - ..." ↔ key "tw.122025c10"
+function getSheetRow(adName) {
+  const lower = adName.toLowerCase();
+  for (const [key, val] of Object.entries(sheetMap)) {
+    if (key && lower.startsWith(key)) return val;
+  }
+  return null;
+}
 
 function getActionVal(actionsArr) {
   if (!actionsArr || !actionsArr.length) return 0;
@@ -496,6 +553,8 @@ async function fetchAll() {
   if (!since || !until) { alert('Select date range'); return; }
 
   sessionStorage.setItem('meta_token', token);
+  const sheetUrl = document.getElementById('sheet-url').value.trim();
+  if (sheetUrl) sessionStorage.setItem('sheet_url', sheetUrl);
 
   const btn = document.getElementById('fetch-btn');
   btn.disabled    = true;
@@ -507,9 +566,19 @@ async function fetchAll() {
   allRows = [];
 
   try {
-    for (const id of Object.keys(ACCOUNTS)) {
-      const rows = await fetchAccount(id, token, since, until);
-      allRows.push(...rows);
+    // Fetch sheet + Meta in parallel
+    await Promise.all([
+      sheetUrl ? fetchSheetData(sheetUrl, since, until) : Promise.resolve(),
+      ...Object.keys(ACCOUNTS).map(id =>
+        fetchAccount(id, token, since, until).then(rows => allRows.push(...rows))
+      ),
+    ]);
+    // Annotate rows with sheet data
+    for (const r of allRows) {
+      const s = getSheetRow(r.adName);
+      r.orders  = s?.orders  ?? null;
+      r.revenue = s?.revenue ?? null;
+      r.roas    = (s?.revenue && r.spend > 0) ? s.revenue / r.spend : null;
     }
     setStatus(`Loaded ${allRows.length.toLocaleString()} ads · ${since} → ${until}`);
     rerender();
@@ -550,11 +619,16 @@ function rerender() {
     return true;
   });
 
-  // Sort
-  const NULL_VAL = sortDir === 'desc' ? -Infinity : Infinity;
+  // Sort — handle both string and numeric columns
   rows.sort((a, b) => {
-    const av = a[sortCol] ?? NULL_VAL;
-    const bv = b[sortCol] ?? NULL_VAL;
+    const av = a[sortCol] ?? null;
+    const bv = b[sortCol] ?? null;
+    if (av === null && bv === null) return 0;
+    if (av === null) return 1;
+    if (bv === null) return -1;
+    if (typeof av === 'string' && typeof bv === 'string') {
+      return sortDir === 'desc' ? bv.localeCompare(av) : av.localeCompare(bv);
+    }
     return sortDir === 'desc' ? bv - av : av - bv;
   });
 
@@ -574,8 +648,11 @@ function updateKPIs(rows) {
 
   const fmt = (n, prefix = '', suffix = '') => n > 0 ? `${prefix}${n.toFixed(2)}${suffix}` : '—';
 
-  document.getElementById('kpi-spend').textContent   = totalSpend > 0   ? `$${totalSpend.toFixed(0)}`                    : '—';
-  document.getElementById('kpi-results').textContent = totalResults > 0  ? totalResults.toLocaleString()                  : '—';
+  const totalRevenue = rows.reduce((s, r) => s + (r.revenue ?? 0), 0);
+  document.getElementById('kpi-spend').textContent   = totalSpend > 0   ? `$${totalSpend.toFixed(0)}`   : '—';
+  document.getElementById('kpi-revenue').textContent = totalRevenue > 0  ? `$${totalRevenue.toFixed(0)}` : '—';
+  document.getElementById('kpi-roas').textContent    = (totalRevenue > 0 && totalSpend > 0) ? `${(totalRevenue / totalSpend).toFixed(2)}x` : '—';
+  document.getElementById('kpi-results').textContent = totalResults > 0  ? totalResults.toLocaleString() : '—';
   document.getElementById('kpi-cpr').textContent     = totalResults > 0  ? `$${(totalSpend / totalResults).toFixed(2)}`   : '—';
   document.getElementById('kpi-cpm').textContent     = totalImpr > 0     ? `$${(totalSpend / totalImpr * 1000).toFixed(2)}` : '—';
   document.getElementById('kpi-ctr').textContent     = totalImpr > 0     ? `${(totalClicks / totalImpr * 100).toFixed(2)}%` : '—';
@@ -597,6 +674,9 @@ const COLS = [
   { key: 'hookRate',    label: 'Hook Rate',    align: 'right', fmt: r => fmtRate(r.hookRate, '#58a6ff') },
   { key: 'holdRate',    label: 'Hold Rate',    align: 'right', fmt: r => fmtRate(r.holdRate, '#3fb950') },
   { key: 'impressions', label: 'Impr',         align: 'right', fmt: r => r.impressions.toLocaleString() },
+  { key: 'orders',  label: 'Orders',  align: 'right', fmt: r => r.orders  !== null ? r.orders.toLocaleString()     : '<span class="na">—</span>' },
+  { key: 'revenue', label: 'Revenue', align: 'right', fmt: r => r.revenue !== null ? `$${r.revenue.toFixed(2)}`    : '<span class="na">—</span>' },
+  { key: 'roas',    label: 'ROAS',    align: 'right', fmt: r => r.roas    !== null ? `<strong>${r.roas.toFixed(2)}x</strong>` : '<span class="na">—</span>' },
 ];
 
 function fmtRate(val, color) {
@@ -665,14 +745,14 @@ function exportCSV() {
 
   if (!rows.length) { alert('No data to export'); return; }
 
-  const header = ['Ad Name','Ad ID','Account','Spend','Results','CPR','CPM','CPC','CTR%','Hook Rate%','Hold Rate%','Impressions','Clicks'].join(',');
+  const header = ['Ad Name','Ad ID','Account','Spend','Results','CPR','CPM','CPC','CTR%','Hook Rate%','Hold Rate%','Impressions','Clicks','Orders','Revenue','ROAS'].join(',');
   const lines  = rows.map(r => [
     `"${r.adName.replace(/"/g,'""')}"`,
     r.adId,
     `"${ACCOUNTS[r.accountId].name}"`,
     r.spend.toFixed(2),
     r.results,
-    r.cpr !== null ? r.cpr.toFixed(2) : '',
+    r.cpr  !== null ? r.cpr.toFixed(2)  : '',
     r.cpm.toFixed(2),
     r.cpc.toFixed(2),
     r.ctr.toFixed(2),
@@ -680,6 +760,9 @@ function exportCSV() {
     r.holdRate !== null ? (r.holdRate * 100).toFixed(2) : '',
     r.impressions,
     r.clicks,
+    r.orders  !== null ? r.orders  : '',
+    r.revenue !== null ? r.revenue.toFixed(2) : '',
+    r.roas    !== null ? r.roas.toFixed(2)    : '',
   ].join(','));
 
   const csv  = [header, ...lines].join('\n');
