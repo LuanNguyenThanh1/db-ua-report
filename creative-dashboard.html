@@ -22,6 +22,33 @@
     --kr-toeic: #e3b341;
     --hk-ielts: #bc8cff;
   }
+  body.light {
+    --bg: #f6f8fa;
+    --surface: #ffffff;
+    --surface2: #eaeef2;
+    --border: #d0d7de;
+    --text: #24292f;
+    --muted: #57606a;
+    --blue: #0969da;
+    --green: #1a7f37;
+    --orange: #9a6700;
+    --purple: #8250df;
+    --red: #cf222e;
+  }
+  body.light .ad-name { color: #24292f; }
+  body.light tbody tr:hover { background: rgba(0,0,0,0.03); }
+  .theme-toggle {
+    margin-left: auto;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .theme-toggle:hover { color: var(--text); border-color: var(--text); }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     background: var(--bg);
@@ -170,6 +197,7 @@
     justify-content: center;
     position: relative;
   }
+  .spend-tile iframe { pointer-events: none; }
   .spend-tile:hover { border-color: var(--blue); }
   .spend-tile img {
     width: 100%;
@@ -327,6 +355,7 @@
 <header>
   <h1>Creative Performance</h1>
   <span class="badge badge-meta">Meta Ads</span>
+  <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">☀ Light</button>
 </header>
 
 <!-- Controls -->
@@ -393,13 +422,13 @@
   <h2>Weekly Spend Report</h2>
   <div class="spend-tile" id="spend-tile" onclick="document.getElementById('spend-upload').click()">
     <div class="spend-tile-placeholder" id="spend-placeholder">
-      <p>Click to upload weekly spend screenshot</p>
-      <small>Recommended size: 1200 × 400 px</small>
+      <p>Click to upload weekly spend report</p>
+      <small>Accepts .html file</small>
     </div>
     <span class="spend-tile-replace">🔄 Replace</span>
     <span class="spend-tile-delete" onclick="event.stopPropagation();deleteSpendImage()" title="Remove image">✕</span>
   </div>
-  <input type="file" id="spend-upload" accept="image/*" style="display:none" onchange="handleSpendUpload(event)">
+  <input type="file" id="spend-upload" accept=".html,text/html" style="display:none" onchange="handleSpendUpload(event)">
 </div>
 
 <div id="error-area"></div>
@@ -457,7 +486,25 @@ let activeMonth = 'all';
   // Restore spend report image
   const savedImg = localStorage.getItem('spend_report_img');
   if (savedImg) renderSpendImage(savedImg);
+  // Restore theme
+  if (localStorage.getItem('theme') === 'light') applyTheme('light');
 })();
+
+function toggleTheme() {
+  const next = document.body.classList.contains('light') ? 'dark' : 'light';
+  applyTheme(next);
+  localStorage.setItem('theme', next);
+}
+function applyTheme(t) {
+  const btn = document.getElementById('theme-btn');
+  if (t === 'light') {
+    document.body.classList.add('light');
+    btn.textContent = '🌙 Dark';
+  } else {
+    document.body.classList.remove('light');
+    btn.textContent = '☀ Light';
+  }
+}
 
 function handleSpendUpload(e) {
   const file = e.target.files[0];
@@ -467,25 +514,37 @@ function handleSpendUpload(e) {
     localStorage.setItem('spend_report_img', ev.target.result);
     renderSpendImage(ev.target.result);
   };
-  reader.readAsDataURL(file);
+  reader.readAsText(file);
   e.target.value = '';
 }
 
 function deleteSpendImage() {
   localStorage.removeItem('spend_report_img');
-  const tile = document.getElementById('spend-tile');
-  const img  = tile.querySelector('img');
-  if (img) img.remove();
+  const tile   = document.getElementById('spend-tile');
+  const iframe = tile.querySelector('iframe');
+  if (iframe) iframe.remove();
   document.getElementById('spend-placeholder').style.display = '';
 }
 
-function renderSpendImage(src) {
+function renderSpendImage(htmlContent) {
   const tile = document.getElementById('spend-tile');
   const ph   = document.getElementById('spend-placeholder');
   ph.style.display = 'none';
-  let img = tile.querySelector('img');
-  if (!img) { img = document.createElement('img'); tile.insertBefore(img, tile.firstChild); }
-  img.src = src;
+  let iframe = tile.querySelector('iframe');
+  if (!iframe) {
+    iframe = document.createElement('iframe');
+    iframe.style.cssText = 'width:100%;border:none;border-radius:8px;display:block;';
+    iframe.setAttribute('scrolling', 'no');
+    tile.insertBefore(iframe, tile.firstChild);
+  }
+  iframe.srcdoc = htmlContent;
+  // Auto-resize iframe to content height after load
+  iframe.onload = () => {
+    try {
+      const h = iframe.contentDocument.body.scrollHeight;
+      iframe.style.height = (h + 20) + 'px';
+    } catch(e) { iframe.style.height = '500px'; }
+  };
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
