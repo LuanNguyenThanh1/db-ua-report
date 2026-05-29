@@ -145,6 +145,62 @@
   .kpi-value { font-size: 20px; font-weight: 700; color: #fff; line-height: 1; }
   .kpi-sub { font-size: 10px; color: var(--muted); margin-top: 4px; }
 
+  /* ── Weekly Spend Report tile ── */
+  .spend-report-section {
+    padding: 24px 24px 0;
+  }
+  .spend-report-section h2 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 12px;
+  }
+  .spend-tile {
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    cursor: pointer;
+    transition: border-color 0.2s;
+    overflow: hidden;
+    min-height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .spend-tile:hover { border-color: var(--blue); }
+  .spend-tile img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 8px;
+  }
+  .spend-tile-placeholder {
+    text-align: center;
+    color: var(--muted);
+    padding: 40px;
+  }
+  .spend-tile-placeholder .upload-icon { font-size: 32px; margin-bottom: 10px; }
+  .spend-tile-placeholder p { font-size: 13px; margin-bottom: 6px; color: var(--text); }
+  .spend-tile-placeholder small { font-size: 11px; color: var(--muted); }
+  .spend-tile-replace, .spend-tile-delete {
+    position: absolute;
+    top: 10px;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .spend-tile-replace { right: 80px; }
+  .spend-tile-delete  { right: 10px; cursor: pointer; }
+  .spend-tile:hover .spend-tile-replace,
+  .spend-tile:hover .spend-tile-delete { opacity: 1; }
+
   /* ── Table toolbar ── */
   .toolbar {
     padding: 12px 24px;
@@ -326,8 +382,26 @@
 <!-- Toolbar + table -->
 <div class="toolbar">
   <input type="text" id="search" placeholder="Search ad name…" oninput="rerender()">
+  <select id="month-filter" onchange="activeMonth=this.value;rerender()" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;">
+    <option value="all">All months</option>
+  </select>
   <span class="count-badge" id="row-count">0 ads</span>
 </div>
+
+<!-- Weekly Spend Report -->
+<div class="spend-report-section">
+  <h2>Weekly Spend Report</h2>
+  <div class="spend-tile" id="spend-tile" onclick="document.getElementById('spend-upload').click()">
+    <div class="spend-tile-placeholder" id="spend-placeholder">
+      <p>Click to upload weekly spend screenshot</p>
+      <small>Recommended size: 1200 × 400 px</small>
+    </div>
+    <span class="spend-tile-replace">🔄 Replace</span>
+    <span class="spend-tile-delete" onclick="event.stopPropagation();deleteSpendImage()" title="Remove image">✕</span>
+  </div>
+  <input type="file" id="spend-upload" accept="image/*" style="display:none" onchange="handleSpendUpload(event)">
+</div>
+
 <div id="error-area"></div>
 <div class="table-wrap">
   <div id="table-area">
@@ -365,7 +439,8 @@ let allRows  = [];
 let sheetMap = {}; // utm_content → {orders, revenue}
 let sortCol  = 'spend';
 let sortDir  = 'desc';
-let activeAcct = 'all';
+let activeAcct  = 'all';
+let activeMonth = 'all';
 
 // ── Init dates ───────────────────────────────────────────────────────────────
 (function initDates() {
@@ -379,7 +454,39 @@ let activeAcct = 'all';
   const DEFAULT_SHEET = '';
   const savedSheet = sessionStorage.getItem('sheet_url') || DEFAULT_SHEET;
   document.getElementById('sheet-url').value = savedSheet;
+  // Restore spend report image
+  const savedImg = localStorage.getItem('spend_report_img');
+  if (savedImg) renderSpendImage(savedImg);
 })();
+
+function handleSpendUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    localStorage.setItem('spend_report_img', ev.target.result);
+    renderSpendImage(ev.target.result);
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+}
+
+function deleteSpendImage() {
+  localStorage.removeItem('spend_report_img');
+  const tile = document.getElementById('spend-tile');
+  const img  = tile.querySelector('img');
+  if (img) img.remove();
+  document.getElementById('spend-placeholder').style.display = '';
+}
+
+function renderSpendImage(src) {
+  const tile = document.getElementById('spend-tile');
+  const ph   = document.getElementById('spend-placeholder');
+  ph.style.display = 'none';
+  let img = tile.querySelector('img');
+  if (!img) { img = document.createElement('img'); tile.insertBefore(img, tile.firstChild); }
+  img.src = src;
+}
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const setStatus = msg => document.getElementById('status-bar').textContent = msg;
@@ -420,6 +527,26 @@ async function fetchSheetData(rawUrl, from, to) {
   } catch (e) {
     console.warn('[Sheet] fetch failed:', e.message);
   }
+}
+
+// Extract MMYYYY from ad name e.g. "TW.122025C92" → "12/2025"
+function extractMonth(adName) {
+  const m = adName.match(/\.\s*(\d{2})(\d{4})[A-Za-z]/i);
+  return m ? `${m[1]}/${m[2]}` : null;
+}
+
+// Populate month dropdown from loaded rows
+function populateMonthFilter() {
+  const months = [...new Set(allRows.map(r => extractMonth(r.adName)).filter(Boolean))];
+  months.sort((a, b) => {
+    const [am, ay] = a.split('/'); const [bm, by] = b.split('/');
+    return ay !== by ? ay - by : am - bm;
+  });
+  const sel = document.getElementById('month-filter');
+  sel.innerHTML = '<option value="all">All months</option>';
+  months.forEach(m => { const o = document.createElement('option'); o.value = m; o.textContent = m; sel.appendChild(o); });
+  activeMonth = 'all';
+  sel.value = 'all';
 }
 
 // Case-insensitive startsWith match: adName "TW.122025C10 - ..." ↔ key "tw.122025c10"
@@ -581,6 +708,7 @@ async function fetchAll() {
       r.roas    = (s?.revenue && r.spend > 0) ? s.revenue / r.spend : null;
     }
     setStatus(`Loaded ${allRows.length.toLocaleString()} ads · ${since} → ${until}`);
+    populateMonthFilter();
     rerender();
   } catch (e) {
     document.getElementById('error-area').innerHTML =
@@ -615,6 +743,7 @@ function rerender() {
   // Filter
   let rows = allRows.filter(r => {
     if (activeAcct !== 'all' && r.accountId !== activeAcct) return false;
+    if (activeMonth !== 'all' && extractMonth(r.adName) !== activeMonth) return false;
     if (query && !r.adName.toLowerCase().includes(query) && !r.adId.includes(query)) return false;
     return true;
   });
@@ -739,6 +868,7 @@ function exportCSV() {
   const query  = document.getElementById('search').value.toLowerCase().trim();
   const rows   = allRows.filter(r => {
     if (activeAcct !== 'all' && r.accountId !== activeAcct) return false;
+    if (activeMonth !== 'all' && extractMonth(r.adName) !== activeMonth) return false;
     if (query && !r.adName.toLowerCase().includes(query)) return false;
     return true;
   });
