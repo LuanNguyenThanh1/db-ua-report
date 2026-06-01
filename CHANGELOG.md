@@ -2,6 +2,30 @@
 
 ---
 
+## v1.5.1 (build từ v1.5 base — status logic v3, latest)
+**Lý do:** v1.7/v1.8 status logic thấy chưa hợp lý → rollback về v1.5, định nghĩa lại cùng team.
+
+**5 status — priority (match đầu thắng): New → Fatigue → Performing → Neutral → Stable**
+- 🆕 **New**: có Compare Period nhưng creative không có data kỳ trước + spend>0
+- 📉 **Fatigue**: spend delta < -10% **VÀ** không còn top performer
+  - top performer = spend ≥ floor **VÀ** CPR ≤ benchmark
+  - fix: creative tụt spend nhẹ nhưng vẫn top (CPR tốt) KHÔNG bị gắn Fatigue → rớt xuống Stable
+- 🏆 **Performing**: spend ≥ floor **VÀ** CPR ≤ benchmark **VÀ** delta > +10%
+  - fix: creative tiêu ít ($2 +100%) KHÔNG còn lọt Performing — phải vượt floor
+- ○ **Neutral**: spend < $5 (đang test, kết quả chưa đáng kể) — chạy không cần Compare
+- → **Stable**: fallback — có kỳ trước + spend ≥ $5 + không match trên
+
+**Floor (động, per account):** `10% × tổng spend account đó (kỳ hiện tại)`
+- Tính per-account kể cả ở "All accounts" (mỗi creative xét theo market của chính nó)
+
+**Benchmark CPR ("average") hardcoded theo objective:**
+- Begin-checkout / Custom Conv. → $4.0 | EntryTestResult → $1.0
+- Completed Registration → $7.0 | messaging_conversation_started_7d → $4.5
+
+**Khác:** Status filter luôn enabled (Neutral chạy không cần Compare). Bỏ disabled/dim cũ.
+
+---
+
 ## v1.8
 **Features — Status logic v2 (5 statuses, từ v1.6 base)**
 - Bỏ **New** + **Stable**. Còn 5 status. Priority (match đầu thắng):
