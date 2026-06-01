@@ -261,18 +261,14 @@
     border-radius: 20px;
     white-space: nowrap;
   }
-  .status-performing { background: rgba(63,185,80,0.12);  color: #3fb950; }
+  .status-performing { background: rgba(63,185,80,0.12); color: #3fb950; }
   .status-fatigue    { background: rgba(248,81,73,0.12);  color: #f85149; }
-  .status-rising     { background: rgba(227,179,65,0.14); color: #d9730d; }
   .status-stable     { background: rgba(155,154,151,0.12);color: #9b9a97; }
-  .status-neutral    { background: rgba(88,166,255,0.10); color: #58a6ff; }
-  .status-bad        { background: rgba(248,81,73,0.08);  color: #e03e3e; }
+  .status-new        { background: rgba(88,166,255,0.12); color: #58a6ff; }
   body.dark .status-performing { background: rgba(63,185,80,0.18);  }
   body.dark .status-fatigue    { background: rgba(248,81,73,0.18);  }
-  body.dark .status-rising     { background: rgba(227,179,65,0.18); }
   body.dark .status-stable     { background: rgba(155,154,151,0.18);}
-  body.dark .status-neutral    { background: rgba(88,166,255,0.15); }
-  body.dark .status-bad        { background: rgba(248,81,73,0.14);  }
+  body.dark .status-new        { background: rgba(88,166,255,0.18); }
 
   /* ── Table toolbar ── */
   .toolbar {
@@ -618,14 +614,12 @@
   <select id="month-filter" onchange="activeMonth=this.value;rerender()" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:14px;cursor:pointer;">
     <option value="all">All months</option>
   </select>
-  <select id="status-filter" onchange="activeStatus=this.value;rerender()" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:14px;cursor:pointer;">
+  <select id="status-filter" onchange="activeStatus=this.value;rerender()" title="Requires Compare Period" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:14px;cursor:pointer;opacity:0.4;" disabled>
     <option value="all">All status</option>
-    <option value="performing">🏆 Performing</option>
-    <option value="fatigue">📉 Fatigue</option>
-    <option value="rising">🚀 Rising Star</option>
-    <option value="stable">→ Stable</option>
-    <option value="neutral">○ Neutral</option>
-    <option value="bad">⚠ Bad</option>
+    <option value="performing">🟢 Performing</option>
+    <option value="fatigue">🔴 Fatigue</option>
+    <option value="stable">⚪ Stable</option>
+    <option value="new">🔵 New</option>
   </select>
   <span class="count-badge" id="row-count">0 ads</span>
 </div>
@@ -1088,6 +1082,8 @@ async function fetchCompare() {
     compareMode = true;
     document.getElementById('clear-compare-field').style.display = '';
     setStatus(`Comparing ${since}→${until} vs ${ps}→${pu}`);
+    document.getElementById('status-filter').style.opacity = '1';
+    document.getElementById('status-filter').disabled = false;
     rerender();
   } catch(e) {
     alert('Compare fetch failed: ' + e.message);
@@ -1098,108 +1094,32 @@ async function fetchCompare() {
 }
 
 // ── Creative status classification ──────────────────────────────────────────
+// Thresholds: >10% spend increase = performing, >10% decrease = fatigue, else stable
+const STATUS_THRESHOLD = 0.10;
 
-// Hardcoded CPR benchmarks per objective (good = below these)
-const CPR_BENCHMARKS = {
-  'Begin-checkout':                         4.0,
-  'Custom Conv.':                           4.0,
-  'EntryTestResult':                        1.0,
-  'Completed Registration':                 7.0,
-  'messaging_conversation_started_7d':      4.5,
-};
-
-// Module-level aggregates — computed once per rerender(), used by getCreativeStatus()
-// top5Ids = top-5 spend per account, CURRENT period (used by Performing)
-let statusAgg = { top5Ids: new Set() };
-
-// Compute top-5 per account from a rows array → returns Set of adIds
-function computeTop5PerAccount(rows) {
-  const byAccount = {};
-  for (const r of rows) {
-    if (!byAccount[r.accountId]) byAccount[r.accountId] = [];
-    byAccount[r.accountId].push(r);
-  }
-  const ids = new Set();
-  for (const acctRows of Object.values(byAccount)) {
-    acctRows.sort((a, b) => b.spend - a.spend);
-    acctRows.slice(0, 5).forEach(r => ids.add(r.adId));
-  }
-  return ids;
-}
-
-function computeStatusAggregates(filteredRows) {
-  // Top 5 per account — current period only
-  statusAgg = { top5Ids: computeTop5PerAccount(filteredRows) };
-}
-
-// Benchmark CPR ("average") for a row's objective — null if objective unknown
-function getBenchmarkCPR(resultLabel) {
-  return CPR_BENCHMARKS[resultLabel] ?? null;
-}
-
-// Was this ad "Performing" in the PREVIOUS period?
-// Definition (per user): prev spend > $20 AND prev CPR ≤ benchmark
-function wasPerformingPrev(prev) {
-  if (!prev || prev.spend <= 20) return false;
-  const bench = getBenchmarkCPR(prev.resultLabel);
-  if (bench === null) return false;          // unknown objective → can't qualify
-  if (prev.cpr === null) return false;        // no CPR → can't qualify
-  return prev.cpr <= bench;
-}
-
-// Classify a creative. Priority (first match wins):
-//   Fatigue → Performing → Bad → Rising Star → Stable → Neutral → null
 function getCreativeStatus(row) {
-  const prev    = compareMode ? compareMap[row.adId] : null;
-  const hasPrev = !!prev;
-  const delta   = (prev && prev.spend > 0) ? (row.spend - prev.spend) / prev.spend : null;
-
-  const bench   = getBenchmarkCPR(row.resultLabel);
-  const cprGood = bench !== null && row.cpr !== null && row.cpr <= bench;          // ≤ benchmark
-  const cprBad  = bench !== null && row.cpr !== null && row.cpr > bench * 1.2;      // > 1.2× benchmark
-
-  // 1. FATIGUE — was a top performer last period, now spend dropped >10%
-  if (compareMode && wasPerformingPrev(prev) && delta !== null && delta < -0.10)
-    return 'fatigue';
-
-  // 2. PERFORMING — top-5 current/account + spend≥$10 + CPR<benchmark + up >10%
-  if (compareMode && statusAgg.top5Ids.has(row.adId)
-      && row.spend >= 10 && bench !== null && row.cpr !== null && row.cpr < bench
-      && delta !== null && delta > 0.10)
-    return 'performing';
-
-  // 3. BAD — CPR > 1.2× benchmark (overrides Rising/Stable/Neutral)
-  if (cprBad)
-    return 'bad';
-
-  // 4. RISING STAR — spend≥$5 AND (brand new — no prev) OR (delta > +20%)
-  if (row.spend >= 5 && (!hasPrev || (delta !== null && delta > 0.20)))
-    return 'rising';
-
-  // 5. STABLE — spend >$10 + delta within ±10%
-  if (compareMode && row.spend > 10 && delta !== null && Math.abs(delta) <= 0.10)
-    return 'stable';
-
-  // 6. NEUTRAL — spend $5–$10 + CPR ≤ benchmark
-  if (row.spend >= 5 && row.spend <= 10 && cprGood)
-    return 'neutral';
-
-  return null;
+  if (!compareMode) return null;
+  const prev = compareMap[row.adId];
+  if (!prev || prev.spend === 0) {
+    // Had zero spend in prev period → new creative
+    return row.spend > 0 ? 'new' : null;
+  }
+  const delta = (row.spend - prev.spend) / prev.spend;
+  if (delta >  STATUS_THRESHOLD) return 'performing';
+  if (delta < -STATUS_THRESHOLD) return 'fatigue';
+  return 'stable';
 }
 
 const STATUS_META = {
-  performing: { label: '🏆 Performing',  cls: 'status-performing' },
-  fatigue:    { label: '📉 Fatigue',     cls: 'status-fatigue'    },
-  rising:     { label: '🚀 Rising Star', cls: 'status-rising'     },
-  stable:     { label: '→ Stable',       cls: 'status-stable'     },
-  neutral:    { label: '○ Neutral',      cls: 'status-neutral'    },
-  bad:        { label: '⚠ Bad',          cls: 'status-bad'        },
+  performing: { label: '↑ Performing', cls: 'status-performing' },
+  fatigue:    { label: '↓ Fatigue',    cls: 'status-fatigue'    },
+  stable:     { label: '→ Stable',     cls: 'status-stable'     },
+  new:        { label: '★ New',         cls: 'status-new'        },
 };
 
 function renderStatusBadge(status) {
   if (!status) return '';
   const m = STATUS_META[status];
-  if (!m) return '';
   return `<span class="status-badge ${m.cls}">${m.label}</span>`;
 }
 
@@ -1210,8 +1130,8 @@ function clearCompare() {
   activeStatus = 'all';
   const sf = document.getElementById('status-filter');
   sf.value    = 'all';
-  sf.disabled = false; // Neutral + Bad still work without compare
-  sf.style.opacity = '1';
+  sf.disabled = true;
+  sf.style.opacity = '0.4';
   rerender();
 }
 
@@ -1233,10 +1153,6 @@ function setSort(col) {
 // ── Re-render ────────────────────────────────────────────────────────────────
 function rerender() {
   const query = document.getElementById('search').value.toLowerCase().trim();
-
-  // Pre-compute status aggregates from account-filtered rows (before search/month filter)
-  const acctFiltered = allRows.filter(r => activeAcct === 'all' || r.accountId === activeAcct);
-  computeStatusAggregates(acctFiltered);
 
   // Filter
   let rows = allRows.filter(r => {
