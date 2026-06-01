@@ -319,7 +319,7 @@
     cursor: pointer;
     user-select: none;
   }
-  thead th:first-child { text-align: left; min-width: 260px; }
+  thead th:first-child { text-align: left; min-width: 300px; }
   thead th:hover { color: var(--text); }
   thead th.sorted { color: var(--blue); }
   thead th .si { font-size: 9px; margin-left: 2px; opacity: 0.5; }
@@ -343,88 +343,83 @@
   .ad-meta { font-size: 10px; color: var(--muted); margin-top: 1px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
   .acct-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
 
-  /* ── Preview button ── */
-  .preview-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 18px; height: 18px;
-    border-radius: 4px;
-    border: none;
-    background: transparent;
-    color: var(--border);
-    cursor: pointer;
+  /* ── Creative thumbnail ── */
+  .ad-cell-inner { display: flex; align-items: center; gap: 10px; }
+  .ad-thumb-wrap {
     flex-shrink: 0;
-    padding: 0;
-    transition: color 0.15s;
-    line-height: 1;
+    width: 40px; height: 40px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    cursor: pointer;
+    position: relative;
   }
-  .preview-btn:hover   { color: var(--blue); }
-  .preview-btn.loading { pointer-events: none; opacity: 0.4; }
-  .preview-btn.loaded  { color: var(--blue); opacity: 0.7; }
+  .ad-thumb-wrap img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .ad-thumb-skeleton {
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, var(--surface2) 25%, var(--border) 50%, var(--surface2) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+  }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+  .ad-thumb-wrap .thumb-icon {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; color: var(--muted);
+  }
 
-  /* ── Creative popover ── */
-  #creative-popover {
+  /* ── Creative preview card (hover) ── */
+  #thumb-preview {
     position: fixed;
     z-index: 9000;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 10px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-    width: 260px;
+    width: 240px;
     overflow: hidden;
-    font-family: inherit;
-    opacity: 0;
-    transform: scale(0.95) translateY(-4px);
-    transition: opacity 0.15s, transform 0.15s;
     pointer-events: none;
+    opacity: 0;
+    transform: scale(0.96);
+    transition: opacity 0.15s, transform 0.15s;
+    font-family: inherit;
   }
-  #creative-popover.visible {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-    pointer-events: all;
-  }
-  .cp-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 10px 12px 0;
-  }
-  .cp-close {
-    background: none; border: none; cursor: pointer;
-    color: var(--muted); font-size: 16px; line-height: 1;
-    padding: 2px 4px; border-radius: 4px;
-  }
-  .cp-close:hover { color: var(--text); background: var(--surface2); }
-  .cp-img-wrap {
-    width: 100%; height: 180px;
+  #thumb-preview.visible { opacity: 1; transform: scale(1); }
+  #thumb-preview .tp-img {
+    width: 100%; height: 200px;
+    object-fit: cover;
+    display: block;
     background: var(--surface2);
+  }
+  #thumb-preview .tp-img-placeholder {
+    width: 100%; height: 200px;
     display: flex; align-items: center; justify-content: center;
-    overflow: hidden; margin-top: 8px;
+    font-size: 32px; color: var(--muted);
+    background: var(--surface2);
   }
-  .cp-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .cp-img-wrap .cp-img-placeholder { font-size: 28px; color: var(--muted); }
-  .cp-body { padding: 10px 12px 12px; }
-  .cp-title {
+  #thumb-preview .tp-body {
+    padding: 10px 12px;
+  }
+  #thumb-preview .tp-title {
     font-size: 12px; font-weight: 600; color: var(--text);
-    margin-bottom: 4px;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin-bottom: 3px;
   }
-  .cp-copy {
-    font-size: 11px; color: var(--muted); line-height: 1.5;
-    display: -webkit-box; -webkit-line-clamp: 3;
+  #thumb-preview .tp-sub {
+    font-size: 10px; color: var(--muted); line-height: 1.5;
+    display: -webkit-box; -webkit-line-clamp: 2;
     -webkit-box-orient: vertical; overflow: hidden;
-    margin-bottom: 10px;
   }
-  .cp-actions { display: flex; gap: 6px; }
-  .cp-link {
-    flex: 1; padding: 5px 8px; border-radius: 6px; font-size: 11px;
-    font-weight: 600; text-align: center; text-decoration: none;
-    cursor: pointer; border: 1px solid var(--border);
-    background: var(--surface2); color: var(--text);
-    transition: background 0.15s;
+  #thumb-preview .tp-tag {
+    display: inline-block; font-size: 10px; font-weight: 600;
+    padding: 2px 6px; border-radius: 4px; margin-top: 6px;
+    background: var(--surface2); color: var(--muted);
   }
-  .cp-link:hover { background: var(--border); }
-  .cp-link.primary { background: var(--blue); color: #fff; border-color: var(--blue); }
-  .cp-link.primary:hover { opacity: 0.88; }
 
   .na { color: var(--muted); }
   .rate-bar {
@@ -676,7 +671,8 @@ let sheetMap     = {}; // utm_content → {orders, revenue}
 let compareRows  = []; // prev period rows
 let compareMap   = {}; // adId → prev period row
 let compareMode  = false;
-let thumbnailMap = {}; // adId → { url, creativeName, title, body, type, igLink, storyId } — lazy cached
+let thumbnailMap = {}; // adId → { url, creativeName, title, body, type }
+let creativeMap  = {}; // adId → creative object (raw)
 let sortCol  = 'spend';
 let sortDir  = 'desc';
 let activeAcct   = 'all';
@@ -950,30 +946,45 @@ async function fetchAccount(accountId, token, since, until) {
   return rows;
 }
 
-// ── Fetch single creative on demand (click-triggered, cached) ────────────────
-async function fetchCreativePreview(adId) {
-  if (thumbnailMap[adId]) return thumbnailMap[adId]; // cache hit
-  const token = document.getElementById('token').value.trim();
-  if (!token) return null;
-  const fields = 'creative{thumbnail_url,image_url,name,title,body,object_story_id,instagram_permalink_url,object_type}';
-  const url = `https://graph.facebook.com/${API_VERSION}/${adId}`
-            + `?fields=${encodeURIComponent(fields)}`
-            + `&access_token=${encodeURIComponent(token)}`;
-  const res  = await fetch(url);
-  const json = await res.json();
-  if (json.error) throw new Error(json.error.message);
-  const c = json.creative || {};
-  const data = {
-    url:          c.thumbnail_url || c.image_url || null,
-    creativeName: c.name  || '',
-    title:        c.title || '',
-    body:         c.body  || '',
-    type:         c.object_type || '',
-    igLink:       c.instagram_permalink_url || null,
-    storyId:      c.object_story_id || null,
-  };
-  thumbnailMap[adId] = data;
-  return data;
+// ── Fetch creative thumbnails (batch by 50) ──────────────────────────────────
+// Uses Meta ?ids= multi-node endpoint — no extra quota beyond normal API rate
+async function fetchThumbnails(token, adIds) {
+  const CHUNK = 50;
+  const fields = 'creative{thumbnail_url,image_url,name,title,body,object_type}';
+  thumbnailMap = {};
+  const chunks = [];
+  for (let i = 0; i < adIds.length; i += CHUNK) chunks.push(adIds.slice(i, i + CHUNK));
+
+  let done = 0;
+  for (const chunk of chunks) {
+    const ids = chunk.join(',');
+    const url = `https://graph.facebook.com/${API_VERSION}/?ids=${encodeURIComponent(ids)}`
+              + `&fields=${encodeURIComponent(fields)}`
+              + `&access_token=${encodeURIComponent(token)}`;
+    try {
+      const res  = await fetch(url);
+      const json = await res.json();
+      if (json.error) { console.warn('[Thumbs] API error:', json.error.message); continue; }
+      for (const [adId, data] of Object.entries(json)) {
+        const c = data.creative;
+        if (!c) continue;
+        const imgUrl = c.thumbnail_url || c.image_url || null;
+        thumbnailMap[adId] = {
+          url:          imgUrl,
+          creativeName: c.name  || '',
+          title:        c.title || '',
+          body:         c.body  || '',
+          type:         c.object_type || '',
+        };
+      }
+    } catch (e) {
+      console.warn('[Thumbs] chunk failed:', e.message);
+    }
+    done += chunk.length;
+    setStatus(`Loading thumbnails… ${done}/${adIds.length}`);
+    // Re-render incrementally so thumbnails pop in
+    rerender();
+  }
 }
 
 // ── Fetch all accounts ────────────────────────────────────────────────────────
@@ -996,8 +1007,7 @@ async function fetchAll() {
   document.getElementById('table-area').innerHTML =
     '<div class="state-box"><div><span class="spinner"></span> Fetching data…</div></div>';
 
-  allRows      = [];
-  thumbnailMap = {}; // reset cache on new fetch
+  allRows = [];
 
   try {
     // Fetch sheet + Meta in parallel
@@ -1017,6 +1027,12 @@ async function fetchAll() {
     setStatus(`Loaded ${allRows.length.toLocaleString()} ads · ${since} → ${until}`);
     populateMonthFilter();
     rerender();
+    // Fetch thumbnails non-blocking — table renders first, thumbs pop in after
+    const adIds = [...new Set(allRows.map(r => r.adId))];
+    fetchThumbnails(token, adIds).then(() => {
+      setStatus(`Loaded ${allRows.length.toLocaleString()} ads · ${since} → ${until}`);
+      rerender();
+    });
   } catch (e) {
     document.getElementById('error-area').innerHTML =
       `<div class="error-box">⚠ ${e.message}</div>`;
@@ -1280,19 +1296,30 @@ function renderTable(rows) {
     const acct  = ACCOUNTS[r.accountId];
     const cells = COLS.map(c => {
       if (c.key === 'adName') {
-        const status   = getCreativeStatus(r);
-        const cached   = thumbnailMap[r.adId];
-        const btnClass = cached ? 'preview-btn loaded' : 'preview-btn';
-        const btnTitle = cached ? 'Preview (cached)' : 'Load preview';
+        const status = getCreativeStatus(r);
+        const thumb  = thumbnailMap[r.adId];
+        const thumbHtml = thumb
+          ? (thumb.url
+              ? `<img src="${escHtml(thumb.url)}" alt="" loading="lazy">`
+              : `<div class="thumb-icon">🎨</div>`)
+          : `<div class="ad-thumb-skeleton"></div>`;
+        const creativeLabel = thumb?.creativeName || thumb?.title || '';
         return `<td>
-          <span class="ad-name" title="${escHtml(r.adName)}">${escHtml(r.adName)}</span>
-          <div class="ad-meta">
-            <span class="acct-dot" style="background:${acct.color}"></span>
-            <span style="color:${acct.color}">${acct.name}</span>
-            <span>${r.adId}</span>
-            <button class="${btnClass}" data-adid="${r.adId}" title="${btnTitle}"
-                    onclick="onPreviewClick(event,this,'${r.adId}','${r.accountId}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-            ${renderStatusBadge(status)}
+          <div class="ad-cell-inner">
+            <div class="ad-thumb-wrap"
+                 data-adid="${r.adId}"
+                 onmouseenter="showThumbPreview(event,this)"
+                 onmouseleave="hideThumbPreview()">${thumbHtml}</div>
+            <div>
+              <span class="ad-name" title="${escHtml(r.adName)}">${escHtml(r.adName)}</span>
+              <div class="ad-meta">
+                <span class="acct-dot" style="background:${acct.color}"></span>
+                <span style="color:${acct.color}">${acct.name}</span>
+                <span>${r.adId}</span>
+                ${creativeLabel ? `<span style="color:var(--muted);font-style:italic">${escHtml(creativeLabel)}</span>` : ''}
+                ${renderStatusBadge(status)}
+              </div>
+            </div>
           </div>
         </td>`;
       }
@@ -1483,110 +1510,78 @@ function endTour() {
 initWelcome();
 </script>
 
-<!-- Creative preview popover -->
-<div id="creative-popover">
-  <div class="cp-header">
-    <span style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px">Creative Preview</span>
-    <button class="cp-close" onclick="closePopover()">✕</button>
-  </div>
-  <div class="cp-img-wrap" id="cp-img-wrap">
-    <div class="cp-img-placeholder">👁</div>
-  </div>
-  <div class="cp-body">
-    <div class="cp-title" id="cp-title">—</div>
-    <div class="cp-copy"  id="cp-copy"></div>
-    <div class="cp-actions" id="cp-actions"></div>
+<!-- Creative thumbnail preview card -->
+<div id="thumb-preview">
+  <div id="tp-img-wrap"></div>
+  <div class="tp-body">
+    <div class="tp-title" id="tp-title"></div>
+    <div class="tp-sub"   id="tp-sub"></div>
+    <div id="tp-tags"></div>
   </div>
 </div>
 
 <script>
-// ── Creative popover (click-triggered, lazy fetch, cached) ───────────────────
-let _popoverAdId = null;
+// ── Thumbnail preview card ────────────────────────────────────────────────────
+let _previewTimer = null;
 
-async function onPreviewClick(e, btn, adId, accountId) {
-  e.stopPropagation();
+function showThumbPreview(e, el) {
+  const adId = el.dataset.adid;
+  const thumb = thumbnailMap[adId];
 
-  // Toggle: click same button again → close
-  if (_popoverAdId === adId) { closePopover(); return; }
+  const card = document.getElementById('thumb-preview');
 
-  _popoverAdId = adId;
-  const popover = document.getElementById('creative-popover');
-
-  // Show loading state immediately
-  renderPopover(null, adId, accountId);
-  positionPopover(btn, popover);
-  popover.classList.add('visible');
-
-  // If not cached: fetch
-  if (!thumbnailMap[adId]) {
-    btn.classList.add('loading');
-    try {
-      await fetchCreativePreview(adId);
-      btn.classList.remove('loading');
-      btn.classList.add('loaded');
-    } catch (err) {
-      btn.classList.remove('loading');
-      console.warn('[Preview] fetch failed:', err.message);
-    }
-  }
-
-  // Re-render with data (cached or just-fetched)
-  if (_popoverAdId === adId) renderPopover(thumbnailMap[adId], adId, accountId);
-}
-
-function renderPopover(data, adId, accountId) {
-  const row = allRows.find(r => r.adId === adId);
-
-  // Image
-  const imgWrap = document.getElementById('cp-img-wrap');
-  if (data?.url) {
-    imgWrap.innerHTML = `<img src="${escHtml(data.url)}" alt="" onerror="this.parentNode.innerHTML='<div class=cp-img-placeholder>🎨</div>'">`;
-  } else if (data) {
-    imgWrap.innerHTML = `<div class="cp-img-placeholder">🎨</div>`;
+  // Build image area
+  const wrap = document.getElementById('tp-img-wrap');
+  if (thumb?.url) {
+    wrap.innerHTML = `<img class="tp-img" src="${escHtml(thumb.url)}" alt="">`;
+  } else if (thumb) {
+    wrap.innerHTML = `<div class="tp-img-placeholder">🎨</div>`;
   } else {
-    imgWrap.innerHTML = `<div class="cp-img-placeholder"><span class="spinner"></span></div>`;
+    wrap.innerHTML = `<div class="tp-img-placeholder" style="font-size:14px;color:var(--muted)"><span class="spinner"></span></div>`;
   }
 
-  // Title + copy
-  document.getElementById('cp-title').textContent = data?.creativeName || data?.title || row?.adName || adId;
-  document.getElementById('cp-copy').textContent  = data?.body || '';
+  // Find row data for context
+  const row = allRows.find(r => r.adId === adId);
+  document.getElementById('tp-title').textContent = row?.adName || adId;
+  document.getElementById('tp-sub').textContent   = thumb?.body || thumb?.creativeName || '';
 
-  // Action buttons
-  const amsUrl = `https://adsmanager.facebook.com/adsmanager/manage/ads?act=${accountId}&selected_ad_ids=${adId}`;
-  let actions = `<a class="cp-link primary" href="${amsUrl}" target="_blank" rel="noopener">⚙ Ads Manager</a>`;
-  if (data?.igLink) {
-    actions += `<a class="cp-link" href="${escHtml(data.igLink)}" target="_blank" rel="noopener">📸 IG Post</a>`;
-  } else if (data?.storyId) {
-    const [pageId, postId] = data.storyId.split('_');
-    if (pageId && postId) {
-      actions += `<a class="cp-link" href="https://www.facebook.com/${pageId}/posts/${postId}" target="_blank" rel="noopener">📘 FB Post</a>`;
-    }
+  // Tags
+  const tags = [];
+  if (thumb?.type) tags.push(thumb.type);
+  if (row?.resultLabel) tags.push(row.resultLabel);
+  const status = getCreativeStatus(row);
+  if (status) {
+    const m = STATUS_META[status];
+    tags.push(`<span class="tp-tag ${m.cls}" style="font-size:10px">${m.label}</span>`);
   }
-  document.getElementById('cp-actions').innerHTML = actions;
+  document.getElementById('tp-tags').innerHTML = tags.map((t, i) =>
+    t.startsWith('<') ? t : `<span class="tp-tag">${escHtml(t)}</span>`
+  ).join(' ');
+
+  // Position card
+  positionPreview(e, card);
+  card.classList.add('visible');
 }
 
-function positionPopover(anchorEl, popover) {
-  const rect = anchorEl.getBoundingClientRect();
-  const W = 260, pad = 8;
-  let left = rect.right + pad;
-  let top  = rect.top;
-  if (left + W > window.innerWidth - 8)  left = rect.left - W - pad;
-  if (top + 380 > window.innerHeight - 8) top = window.innerHeight - 390;
-  if (top < 8) top = 8;
-  popover.style.left = left + 'px';
-  popover.style.top  = top  + 'px';
+function positionPreview(e, card) {
+  const W = 240, pad = 12;
+  let left = e.clientX + pad;
+  let top  = e.clientY + pad;
+  if (left + W > window.innerWidth  - 8) left = e.clientX - W - pad;
+  if (top  + 320 > window.innerHeight - 8) top = window.innerHeight - 330;
+  card.style.left = left + 'px';
+  card.style.top  = top  + 'px';
 }
 
-function closePopover() {
-  _popoverAdId = null;
-  document.getElementById('creative-popover').classList.remove('visible');
+function hideThumbPreview() {
+  document.getElementById('thumb-preview').classList.remove('visible');
 }
 
-// Click outside → close
-document.addEventListener('click', e => {
-  const pop = document.getElementById('creative-popover');
-  if (!pop.classList.contains('visible')) return;
-  if (!pop.contains(e.target) && !e.target.closest('.preview-btn')) closePopover();
+// Update preview card position while mouse moves over thumbnail
+document.addEventListener('mousemove', e => {
+  const card = document.getElementById('thumb-preview');
+  if (!card.classList.contains('visible')) return;
+  positionPreview(e, card);
 });
 </script>
 
