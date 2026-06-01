@@ -701,6 +701,8 @@ let activeStatus = 'all';
   // Restore theme (default = light)
   const savedTheme = localStorage.getItem('theme') || 'light';
   applyTheme(savedTheme);
+  // Default light — clear any stale dark preference from old versions
+  if (!localStorage.getItem('theme')) localStorage.setItem('theme', 'light');
 })();
 
 function toggleTheme() {
