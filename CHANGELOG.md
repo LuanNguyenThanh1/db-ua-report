@@ -2,6 +2,22 @@
 
 ---
 
+## v1.8
+**Features — Status logic v2 (5 statuses, từ v1.6 base)**
+- Bỏ **New** + **Stable**. Còn 5 status. Priority (match đầu thắng):
+  **Fatigue → Performing → Bad → Rising Star → Neutral**
+  - 🏆 **Performing**: spend ≥ floor + CPR < benchmark + delta > +10%
+  - 📉 **Fatigue**: delta < -10% VÀ không còn là top performer hiện tại
+  - 🚀 **Rising Star**: spend ≥ $5 VÀ (creative mới — không có kỳ trước HOẶC delta > +20%)
+  - ⚠ **Bad**: spend ≥ $5 + CPR > benchmark × 1.2 (đắt hơn 20%)
+  - ○ **Neutral**: spend < $5 + results ≤ 2 (đang test, chưa đáng kể)
+- **Floor động** = 10% tổng spend của account/market đó (per account, kể cả ở All view — mỗi creative xét theo market của chính nó). Fix vấn đề creative tiêu $2 +100% bị gắn Performing.
+- **Top performer hiện tại** = spend ≥ floor VÀ CPR ≤ benchmark. Fatigue chỉ gắn khi creative đã RỚT khỏi top (spend -10% + CPR vẫn ngon thì KHÔNG Fatigue).
+- CPR benchmarks theo objective: Begin-checkout/Custom Conv. $4 · EntryTestResult $1 · Completed Registration $7 · messaging_conversation_started_7d $4.5
+- Bad + Neutral chạy không cần Compare Period; Performing/Fatigue/Rising(+20%) cần Compare
+
+---
+
 ## v1.7
 **Features — Status Classification Rewrite**
 - 6 statuses, định nghĩa chốt cùng team. Priority (match đầu tiên thắng):
