@@ -2,6 +2,39 @@
 
 ---
 
+## v1.7
+**Features — Status Classification Rewrite**
+- 6 statuses, định nghĩa chốt cùng team. Priority (match đầu tiên thắng):
+  **Fatigue → Performing → Bad → Rising Star → Stable → Neutral**
+  - 📉 **Fatigue**: kỳ TRƯỚC là performing (prev spend>$20 + prev CPR≤benchmark) VÀ kỳ này spend giảm <-10%
+  - 🏆 **Performing**: top-5 spend/account + spend≥$10 + CPR<benchmark + delta>+10%
+  - ⚠ **Bad**: CPR > benchmark×1.2 (đắt hơn 20%) — override Rising/Stable/Neutral
+  - 🚀 **Rising Star**: spend≥$5 VÀ (creative mới — không có kỳ trước HOẶC delta>+20%)
+  - **→ Stable**: spend>$10 + delta ±10%
+  - **○ Neutral**: spend $5–$10 + CPR≤benchmark
+- CPR benchmarks ("average") hardcoded theo objective:
+  - Begin-checkout / Custom Conv. → $4.0
+  - EntryTestResult → $1.0
+  - Completed Registration → $7.0
+  - messaging_conversation_started_7d → $4.5
+- Top-5 tính per account (không phải global) — All accounts = 20 slots
+- Fatigue check "was-performing" dựa trên prev period data (spend>$20 + CPR≤benchmark, không cần top-5)
+- Aggregates pre-computed mỗi rerender, trước filter
+- Bad + Neutral + Rising (new creative) hoạt động không cần Compare Period; Fatigue/Performing/Stable cần Compare
+
+---
+
+## v1.6
+**UI**
+- Tăng font size toàn dashboard cho desktop readability (+2–4px theo tier)
+  - Body: 13 → 15px | Table: 12 → 14px | Ad name: 12 → 14px
+  - KPI value: 20 → 24px | Header h1: 15 → 18px
+  - Labels/muted: 10 → 11px | Status bar: 11 → 12px
+  - Account tabs: 12 → 13px | Toolbar selects: 12 → 14px
+  - Delta badges: 10–11 → 11–12px
+
+---
+
 ## v1.5
 **Features**
 - Creative preview popover: click 👁 icon trong ad row → fetch creative từ Meta API (1 call / 1 ad, on-demand)
