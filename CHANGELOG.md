@@ -2,7 +2,17 @@
 
 ---
 
-## v1.5.1 (build từ v1.5 base — status logic v3, latest)
+## v1.5.2 (build từ v1.5.1 — status thủ công, latest)
+**Thay đổi lớn:** Bỏ HẾT auto-classification (floor, CPR benchmark, top-performer, delta). Status giờ user tự gán tay.
+- Xóa: `getCreativeStatus`, `computeAccountFloors`, `isTopPerformer`, `getBenchmarkCPR`, `CPR_BENCHMARKS`, các threshold const
+- **Thêm cột "Status"** ngay cạnh cột Ad — dropdown chọn tay 1 trong 5: 🏆 Performing / 📉 Fatigue / 🆕 New / ○ Neutral / → Stable (hoặc bỏ trống)
+- Dropdown viền màu theo status đã chọn
+- Lưu **localStorage** theo `adId` (`manual_status`) → giữ nguyên khi re-fetch / đổi date range / reload
+- Filter status (toolbar) giờ lọc theo status gán tay, không cần Compare Period
+
+---
+
+## v1.5.1 (build từ v1.5 base — status logic v3)
 **Lý do:** v1.7/v1.8 status logic thấy chưa hợp lý → rollback về v1.5, định nghĩa lại cùng team.
 
 **5 status — priority (match đầu thắng): New → Fatigue → Performing → Neutral → Stable**
