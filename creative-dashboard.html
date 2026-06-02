@@ -673,7 +673,7 @@
   </div>
 </div>
 
-<div id="status-bar">Ready</div>
+<div id="status-bar"><span id="status-msg">Ready</span><span id="version-tag" style="float:right;opacity:0.7">v1.5.2</span></div>
 
 <script>
 // ── Config ──────────────────────────────────────────────────────────────────
@@ -789,7 +789,7 @@ function renderSpendImage(htmlContent) {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
-const setStatus = msg => document.getElementById('status-bar').textContent = msg;
+const setStatus = msg => document.getElementById('status-msg').textContent = msg;
 
 // Parse a single CSV line (handles quoted fields)
 function parseCSVLine(line) {
