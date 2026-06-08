@@ -262,6 +262,8 @@
     width: 26px;
   }
   .ua-rank-1 { color: #d9730d; }
+  .ua-rank-bad { color: #e03e3e; }
+  .ua-count-bad { color: #e03e3e; }
   .ua-row-main { flex: 1; min-width: 0; }
   .ua-row-name {
     font-size:12px;
@@ -416,6 +418,14 @@
   }
 
   .table-wrap { overflow-x: auto; padding: 0 28px 40px; }
+  .deep-dive-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin: 24px 0 12px;
+  }
   table { width: 100%; border-collapse: collapse; font-size:16px; }
   thead th {
     background: var(--bg);
@@ -755,14 +765,24 @@
 <!-- UA Creative Report -->
 <div class="ua-report-section">
   <h2 class="ua-report-toggle" onclick="toggleUAReport()">
-    <span id="ua-report-caret">▸</span> UA Creative Report
+    <span id="ua-report-caret">▸</span> Top Perform Creative
     <span class="ua-report-hint">top 3 creative theo conversion type · filter hiện tại</span>
   </h2>
   <div id="ua-report-body" style="display:none"></div>
 </div>
 
+<!-- Bad Creative Report -->
+<div class="ua-report-section">
+  <h2 class="ua-report-toggle" onclick="toggleBadReport()">
+    <span id="bad-report-caret">▸</span> Bad Creative
+    <span class="ua-report-hint">tốn nhiều tiền, ít kết quả (CPR cao nhất) theo conversion type · spend ≥ $5</span>
+  </h2>
+  <div id="bad-report-body" style="display:none"></div>
+</div>
+
 <div id="error-area"></div>
 <div class="table-wrap">
+  <h2 class="deep-dive-title">Creative Deep Dive</h2>
   <div id="table-area">
     <div class="state-box">
       <div class="icon">📊</div>
@@ -830,6 +850,10 @@ let activeResultType = 'all';
   if (localStorage.getItem('ua_report_open') === '1') {
     document.getElementById('ua-report-body').style.display = 'flex';
     document.getElementById('ua-report-caret').textContent = '▾';
+  }
+  if (localStorage.getItem('bad_report_open') === '1') {
+    document.getElementById('bad-report-body').style.display = 'flex';
+    document.getElementById('bad-report-caret').textContent = '▾';
   }
   syncStickyHeight();
 })();
@@ -1315,6 +1339,7 @@ function rerender() {
   updateKPIs(rows);
   renderTable(rows);
   renderUAReport(rows);
+  renderBadReport(rows);
   syncStickyHeight();
 }
 
@@ -1383,6 +1408,74 @@ function renderUAReport(rows) {
     return `<div class="ua-card">
       <div class="ua-card-head"><span>${icon} ${escHtml(label)}</span>
         <span class="ua-card-total">${totals[label].toLocaleString()} total</span></div>
+      ${rowsHtml}
+    </div>`;
+  }).join('');
+}
+
+// ── Bad Creative Report (high spend, low results = worst CPR per type) ────────
+const BAD_SPEND_FLOOR = 5; // chỉ xét creative spend ≥ $5
+
+function toggleBadReport() {
+  const body  = document.getElementById('bad-report-body');
+  const caret = document.getElementById('bad-report-caret');
+  const open  = body.style.display === 'none';
+  body.style.display = open ? 'flex' : 'none';
+  caret.textContent  = open ? '▾' : '▸';
+  localStorage.setItem('bad_report_open', open ? '1' : '0');
+}
+
+function renderBadReport(rows) {
+  const body = document.getElementById('bad-report-body');
+  if (!body) return;
+
+  // Group by conversion type; only creatives with meaningful spend (≥ floor)
+  const groups = {};
+  for (const r of rows) {
+    if (!r.resultLabel || r.spend < BAD_SPEND_FLOOR) continue;
+    (groups[r.resultLabel] ||= []).push(r);
+  }
+
+  const labels = Object.keys(groups);
+  if (!labels.length) {
+    body.innerHTML = `<div class="ua-empty">Chưa có creative nào spend ≥ $${BAD_SPEND_FLOOR} trong filter hiện tại.</div>`;
+    return;
+  }
+
+  // "bad score": CPR cao nhất = tệ nhất. 0 results → CPR = ∞ (tệ nhất), tiebreak spend cao hơn.
+  const badRank = r => (r.results > 0 && r.cpr !== null) ? r.cpr : Infinity;
+
+  // Order cards by total wasted spend desc (type đốt nhiều tiền nhất trước)
+  const wasted = {};
+  labels.forEach(l => wasted[l] = groups[l].reduce((s, r) => s + r.spend, 0));
+  labels.sort((a, b) => wasted[b] - wasted[a]);
+
+  body.innerHTML = labels.map(label => {
+    const top3 = groups[label].slice().sort((a, b) => {
+      const ba = badRank(a), bb = badRank(b);
+      if (ba !== bb) return bb - ba;          // CPR cao trước
+      return b.spend - a.spend;                // tie → spend cao trước
+    }).slice(0, 3);
+    const icon = UA_TYPE_ICONS[label] || '📊';
+    const rowsHtml = top3.map((r, i) => {
+      const acct = ACCOUNTS[r.accountId];
+      const cpr  = (r.results > 0 && r.cpr !== null) ? `$${r.cpr.toFixed(2)}` : '∞';
+      return `<div class="ua-row">
+        <span class="ua-rank ua-rank-bad">${i + 1}</span>
+        <div class="ua-row-main">
+          <div class="ua-row-name" title="${escHtml(r.adName)}">${escHtml(r.adName)}</div>
+          <div class="ua-row-sub">
+            <span class="acct-dot" style="background:${acct.color}"></span>
+            <span style="color:${acct.color}">${acct.name}</span>
+            <span>· $${r.spend.toFixed(0)} → ${r.results} res</span>
+          </div>
+        </div>
+        <span class="ua-row-count ua-count-bad">${cpr}</span>
+      </div>`;
+    }).join('');
+    return `<div class="ua-card">
+      <div class="ua-card-head"><span>${icon} ${escHtml(label)}</span>
+        <span class="ua-card-total">$${wasted[label].toFixed(0)} spend</span></div>
       ${rowsHtml}
     </div>`;
   }).join('');
