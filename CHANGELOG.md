@@ -17,8 +17,13 @@
   - Bám theo filter account + month + search hiện tại
   - Mỗi dòng: rank, ad name, account dot, CPR, results count
   - ⚠ Hạn chế: mọi custom conversion gộp chung label "Custom Conv." (label không tách được theo custom ID)
+  - Rename tile → "Top Perform Creative"
+- **Tile mới "Bad Creative"** (dưới Top Perform): creative tốn nhiều tiền, ít kết quả theo conversion type
+  - Rank theo CPR cao nhất (đắt nhất/kết quả); 0 results + có spend → CPR=∞ tệ nhất, tiebreak spend cao hơn
+  - Chỉ xét creative spend ≥ $5 (bỏ noise); top 3/type; card sắp theo tổng spend giảm dần
+  - Mỗi dòng: rank đỏ, ad name, account, `$spend → N res`, CPR (đỏ); header `$total spend`
 - **Filter mới "Result type"** cạnh month filter — lọc creative theo conversion type (populate động từ data), áp cả table + CSV export
-- **Sticky header zone:** Controls + Account tabs + KPI + Toolbar neo cứng (position:sticky) khi scroll table. Table thead pin ngay dưới (offset = chiều cao zone, tính động qua `--sticky-h`, cập nhật khi resize/đổi filter). Header title không neo.
+- **Sticky header zone (REVERTED):** thử pin Controls+Tabs+KPI+Toolbar nhưng khối cao ~728px (KPI to) → đẩy header table khuất, sort "mất". Đã bỏ pin khối (sticky-zone → static), trả header table về sticky top:0 viewport như cũ. Sort hoạt động lại.
 - **Fix label:** `labelFromIndicator` strip prefix `actions:`/`conversions:` + map thêm `mobile_app_install`→App Install, `fb_pixel_complete_registration`→Completed Registration, các fb_pixel_* khác; fallback prettify thay vì hiện raw string
   - Thêm nhãn `messaging_conversation_started_7d` → "Messaging"
 

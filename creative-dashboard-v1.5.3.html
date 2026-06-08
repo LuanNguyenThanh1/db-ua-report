@@ -409,13 +409,8 @@
   @keyframes spin { to { transform: rotate(360deg); } }
 
   /* ── Table ── */
-  /* ── Sticky zone (controls + tabs + KPI + toolbar) ── */
-  #sticky-zone {
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    background: var(--bg);
-  }
+  /* ── Sticky zone wrapper (not pinned — KPI too tall to pin usefully) ── */
+  #sticky-zone { position: static; }
 
   .table-wrap { overflow-x: auto; padding: 0 28px 40px; }
   .deep-dive-title {
@@ -439,7 +434,7 @@
     white-space: nowrap;
     border-bottom: 1px solid var(--border);
     position: sticky;
-    top: var(--sticky-h, 60px); /* pin below sticky zone */
+    top: 0; /* pin to viewport top when scrolling table */
     z-index: 10;
     cursor: pointer;
     user-select: none;
