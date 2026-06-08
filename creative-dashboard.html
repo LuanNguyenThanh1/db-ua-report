@@ -777,13 +777,17 @@
 
 <div id="error-area"></div>
 <div class="table-wrap">
-  <h2 class="deep-dive-title">Creative Deep Dive</h2>
+  <h2 class="ua-report-toggle" onclick="toggleDeepDive()">
+    <span id="deep-dive-caret">▾</span> Creative Deep Dive
+  </h2>
+  <div id="deep-dive-body">
   <div id="table-area">
     <div class="state-box">
       <div class="icon">📊</div>
       <p>Enter token + date range → Fetch Data</p>
     </div>
   </div>
+  </div><!-- /deep-dive-body -->
 </div>
 
 <div id="status-bar"><span id="status-msg">Ready</span><span id="version-tag" style="float:right;opacity:0.7">v1.5.3</span></div>
@@ -849,6 +853,11 @@ let activeResultType = 'all';
   if (localStorage.getItem('bad_report_open') === '1') {
     document.getElementById('bad-report-body').style.display = 'flex';
     document.getElementById('bad-report-caret').textContent = '▾';
+  }
+  // Deep Dive table: default open, collapse only if saved '0'
+  if (localStorage.getItem('deep_dive_open') === '0') {
+    document.getElementById('deep-dive-body').style.display = 'none';
+    document.getElementById('deep-dive-caret').textContent = '▸';
   }
   syncStickyHeight();
 })();
@@ -1418,6 +1427,15 @@ function toggleBadReport() {
   body.style.display = open ? 'flex' : 'none';
   caret.textContent  = open ? '▾' : '▸';
   localStorage.setItem('bad_report_open', open ? '1' : '0');
+}
+
+function toggleDeepDive() {
+  const body  = document.getElementById('deep-dive-body');
+  const caret = document.getElementById('deep-dive-caret');
+  const open  = body.style.display === 'none';
+  body.style.display = open ? '' : 'none';
+  caret.textContent  = open ? '▾' : '▸';
+  localStorage.setItem('deep_dive_open', open ? '1' : '0');
 }
 
 function renderBadReport(rows) {

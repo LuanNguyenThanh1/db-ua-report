@@ -23,6 +23,7 @@
   - Chỉ xét creative spend ≥ $5 (bỏ noise); top 3/type; card sắp theo tổng spend giảm dần
   - Mỗi dòng: rank đỏ, ad name, account, `$spend → N res`, CPR (đỏ); header `$total spend`
 - **Filter mới "Result type"** cạnh month filter — lọc creative theo conversion type (populate động từ data), áp cả table + CSV export
+- **Creative Deep Dive → toggle tile:** bảng creative dưới cùng giờ collapsible (click header thu/mở, caret ▾/▸, lưu localStorage) giống Top Perform + Underperform. Default mở.
 - **Sticky header zone (REVERTED):** thử pin Controls+Tabs+KPI+Toolbar nhưng khối cao ~728px (KPI to) → đẩy header table khuất, sort "mất". Đã bỏ pin khối (sticky-zone → static), trả header table về sticky top:0 viewport như cũ. Sort hoạt động lại.
 - **Fix label:** `labelFromIndicator` strip prefix `actions:`/`conversions:` + map thêm `mobile_app_install`→App Install, `fb_pixel_complete_registration`→Completed Registration, các fb_pixel_* khác; fallback prettify thay vì hiện raw string
   - Thêm nhãn `messaging_conversation_started_7d` → "Messaging"
