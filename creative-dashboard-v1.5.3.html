@@ -49,7 +49,7 @@
     color: var(--muted);
     border-radius: 6px;
     padding: 4px 10px;
-    font-size:24px;
+    font-size:16px;
     cursor: pointer;
     transition: color 0.2s, border-color 0.2s;
   }
@@ -59,7 +59,7 @@
     background: var(--bg);
     color: var(--text);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size:26px;
+    font-size:17px;
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
   }
@@ -73,9 +73,9 @@
     gap: 10px;
     background: var(--surface);
   }
-  header h1 { font-size:30px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
+  header h1 { font-size:20px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
   .badge {
-    font-size:20px;
+    font-size:13px;
     font-weight: 600;
     padding: 2px 8px;
     border-radius: 4px;
@@ -96,7 +96,7 @@
   }
   .field { display: flex; flex-direction: column; gap: 4px; }
   .field label {
-    font-size:20px;
+    font-size:13px;
     color: var(--muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -111,7 +111,7 @@
     color: var(--text);
     padding: 6px 10px;
     border-radius: 6px;
-    font-size:26px;
+    font-size:17px;
     outline: none;
     transition: border-color 0.15s, box-shadow 0.15s;
     font-family: inherit;
@@ -124,7 +124,7 @@
   .btn {
     padding: 6px 14px;
     border-radius: 6px;
-    font-size:26px;
+    font-size:17px;
     font-weight: 500;
     cursor: pointer;
     border: none;
@@ -150,7 +150,7 @@
   .acct-tab {
     padding: 4px 12px;
     border-radius: 6px;
-    font-size:24px;
+    font-size:16px;
     font-weight: 500;
     cursor: pointer;
     border: 1px solid transparent;
@@ -189,16 +189,95 @@
     border: 1px solid var(--border);
     box-shadow: var(--shadow);
   }
-  .kpi-label { font-size:20px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 6px; }
-  .kpi-value { font-size:40px; font-weight: 700; color: var(--text); line-height: 1; }
-  .kpi-sub { font-size:20px; color: var(--muted); margin-top: 4px; }
+  .kpi-label { font-size:13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 6px; }
+  .kpi-value { font-size:27px; font-weight: 700; color: var(--text); line-height: 1; }
+  .kpi-sub { font-size:13px; color: var(--muted); margin-top: 4px; }
+
+  /* ── UA Creative Report tile ── */
+  .ua-report-section { padding: 24px 28px 0; }
+  .ua-report-toggle {
+    font-size:17px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .ua-report-toggle:hover { color: var(--text); }
+  #ua-report-caret { font-size:12px; transition: transform 0.15s; display: inline-block; }
+  .ua-report-hint {
+    font-size:11px;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    opacity: 0.7;
+  }
+  #ua-report-body {
+    display: flex;
+    gap: 14px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+  .ua-card {
+    flex: 1 0 280px;
+    min-width: 280px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    box-shadow: var(--shadow);
+  }
+  .ua-card-head {
+    font-size:12px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    white-space: nowrap;
+  }
+  .ua-card-total { font-size:10px; font-weight: 600; color: var(--muted); }
+  .ua-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 0;
+    border-top: 1px solid var(--border);
+  }
+  .ua-rank {
+    font-size:13px;
+    font-weight: 700;
+    color: var(--muted);
+    flex-shrink: 0;
+    width: 26px;
+  }
+  .ua-rank-1 { color: #d9730d; }
+  .ua-row-main { flex: 1; min-width: 0; }
+  .ua-row-name {
+    font-size:12px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ua-row-sub { font-size:10px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+  .ua-row-count { font-size:15px; font-weight: 700; color: var(--text); flex-shrink: 0; }
+  .ua-empty { color: var(--muted); font-size:12px; padding: 8px 0; }
 
   /* ── Weekly Spend Report tile ── */
   .spend-report-section {
     padding: 24px 28px 0;
   }
   .spend-report-section h2 {
-    font-size:26px;
+    font-size:17px;
     font-weight: 600;
     color: var(--muted);
     text-transform: uppercase;
@@ -231,15 +310,15 @@
     color: var(--muted);
     padding: 40px;
   }
-  .spend-tile-placeholder .upload-icon { font-size:64px; margin-bottom: 10px; }
-  .spend-tile-placeholder p { font-size:26px; margin-bottom: 6px; color: var(--text); }
-  .spend-tile-placeholder small { font-size:22px; color: var(--muted); }
+  .spend-tile-placeholder .upload-icon { font-size:43px; margin-bottom: 10px; }
+  .spend-tile-placeholder p { font-size:17px; margin-bottom: 6px; color: var(--text); }
+  .spend-tile-placeholder small { font-size:15px; color: var(--muted); }
   .spend-tile-replace, .spend-tile-delete {
     position: absolute;
     top: 10px;
     background: rgba(0,0,0,0.6);
     color: #fff;
-    font-size:22px;
+    font-size:15px;
     padding: 4px 10px;
     border-radius: 6px;
     opacity: 0;
@@ -255,7 +334,7 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    font-size:20px;
+    font-size:13px;
     font-weight: 600;
     padding: 2px 7px;
     border-radius: 20px;
@@ -275,7 +354,7 @@
   /* ── Manual status picker (per-row dropdown) ── */
   .status-picker {
     font-family: inherit;
-    font-size:22px;
+    font-size:15px;
     font-weight: 600;
     padding: 3px 6px;
     border-radius: 6px;
@@ -304,7 +383,7 @@
   }
   #search { width: 240px; }
   .count-badge {
-    font-size:22px;
+    font-size:15px;
     color: var(--muted);
     padding: 3px 10px;
     border: 1px solid var(--border);
@@ -326,12 +405,12 @@
 
   /* ── Table ── */
   .table-wrap { overflow-x: auto; padding: 0 28px 40px; }
-  table { width: 100%; border-collapse: collapse; font-size:24px; }
+  table { width: 100%; border-collapse: collapse; font-size:16px; }
   thead th {
     background: var(--bg);
     color: var(--muted);
     font-weight: 600;
-    font-size:20px;
+    font-size:13px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     padding: 8px 10px;
@@ -346,7 +425,7 @@
   thead th:first-child { text-align: left; min-width: 260px; }
   thead th:hover { color: var(--text); }
   thead th.sorted { color: var(--blue); }
-  thead th .si { font-size:18px; margin-left: 2px; opacity: 0.5; }
+  thead th .si { font-size:12px; margin-left: 2px; opacity: 0.5; }
   thead th.sorted .si { opacity: 1; }
 
   tbody tr { border-bottom: 1px solid var(--border); }
@@ -362,9 +441,9 @@
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 280px;
-    font-size:24px;
+    font-size:16px;
   }
-  .ad-meta { font-size:20px; color: var(--muted); margin-top: 1px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .ad-meta { font-size:13px; color: var(--muted); margin-top: 1px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
   .acct-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
 
   /* ── Preview button ── */
@@ -414,7 +493,7 @@
   }
   .cp-close {
     background: none; border: none; cursor: pointer;
-    color: var(--muted); font-size:32px; line-height: 1;
+    color: var(--muted); font-size:21px; line-height: 1;
     padding: 2px 4px; border-radius: 4px;
   }
   .cp-close:hover { color: var(--text); background: var(--surface2); }
@@ -425,22 +504,22 @@
     overflow: hidden; margin-top: 8px;
   }
   .cp-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .cp-img-wrap .cp-img-placeholder { font-size:56px; color: var(--muted); }
+  .cp-img-wrap .cp-img-placeholder { font-size:37px; color: var(--muted); }
   .cp-body { padding: 10px 12px 12px; }
   .cp-title {
-    font-size:24px; font-weight: 600; color: var(--text);
+    font-size:16px; font-weight: 600; color: var(--text);
     margin-bottom: 4px;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .cp-copy {
-    font-size:22px; color: var(--muted); line-height: 1.5;
+    font-size:15px; color: var(--muted); line-height: 1.5;
     display: -webkit-box; -webkit-line-clamp: 3;
     -webkit-box-orient: vertical; overflow: hidden;
     margin-bottom: 10px;
   }
   .cp-actions { display: flex; gap: 6px; }
   .cp-link {
-    flex: 1; padding: 5px 8px; border-radius: 6px; font-size:22px;
+    flex: 1; padding: 5px 8px; border-radius: 6px; font-size:15px;
     font-weight: 600; text-align: center; text-decoration: none;
     cursor: pointer; border: 1px solid var(--border);
     background: var(--surface2); color: var(--text);
@@ -471,8 +550,8 @@
     padding: 60px 24px;
     color: var(--muted);
   }
-  .state-box .icon { font-size:64px; margin-bottom: 12px; }
-  .state-box p { font-size:26px; }
+  .state-box .icon { font-size:43px; margin-bottom: 12px; }
+  .state-box p { font-size:17px; }
   .error-box {
     margin: 16px 28px;
     background: #fef2f2;
@@ -480,7 +559,7 @@
     color: #b91c1c;
     padding: 12px 16px;
     border-radius: 8px;
-    font-size:24px;
+    font-size:16px;
     line-height: 1.5;
   }
   body.dark .error-box {
@@ -508,15 +587,15 @@
     font-family: inherit;
   }
   .tour-tooltip .tour-step-label {
-    font-size:20px; font-weight: 600; color: var(--blue);
+    font-size:13px; font-weight: 600; color: var(--blue);
     text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;
   }
-  .tour-tooltip .tour-title { font-size:28px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
-  .tour-tooltip .tour-desc  { font-size:24px; color: var(--muted); line-height: 1.6; margin-bottom: 14px; }
+  .tour-tooltip .tour-title { font-size:19px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .tour-tooltip .tour-desc  { font-size:16px; color: var(--muted); line-height: 1.6; margin-bottom: 14px; }
   .tour-tooltip .tour-actions { display: flex; gap: 8px; justify-content: flex-end; }
-  .tour-skip { font-size:24px; color: var(--muted); cursor: pointer; background: none; border: none; font-family: inherit; padding: 4px; }
+  .tour-skip { font-size:16px; color: var(--muted); cursor: pointer; background: none; border: none; font-family: inherit; padding: 4px; }
   .tour-skip:hover { color: var(--text); }
-  .tour-next { font-size:24px; font-weight: 600; cursor: pointer; background: var(--blue); color: #fff; border: none; border-radius: 6px; padding: 6px 14px; font-family: inherit; }
+  .tour-next { font-size:16px; font-weight: 600; cursor: pointer; background: var(--blue); color: #fff; border: none; border-radius: 6px; padding: 6px 14px; font-family: inherit; }
   .tour-next:hover { opacity: 0.88; }
   .tour-highlight {
     position: relative;
@@ -543,12 +622,12 @@
     text-align: center;
     font-family: inherit;
   }
-  .welcome-modal .wm-emoji { font-size:72px; margin-bottom: 12px; }
-  .welcome-modal h2 { font-size:34px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
-  .welcome-modal p  { font-size:26px; color: var(--muted); line-height: 1.6; margin-bottom: 24px; }
+  .welcome-modal .wm-emoji { font-size:48px; margin-bottom: 12px; }
+  .welcome-modal h2 { font-size:23px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .welcome-modal p  { font-size:17px; color: var(--muted); line-height: 1.6; margin-bottom: 24px; }
   .welcome-modal .wm-btns { display: flex; gap: 10px; }
-  .wm-yes { flex: 1; padding: 9px; border-radius: 8px; background: var(--blue); color: #fff; font-size:26px; font-weight: 600; border: none; cursor: pointer; font-family: inherit; }
-  .wm-no  { flex: 1; padding: 9px; border-radius: 8px; background: var(--surface2); color: var(--text); font-size:26px; border: 1px solid var(--border); cursor: pointer; font-family: inherit; }
+  .wm-yes { flex: 1; padding: 9px; border-radius: 8px; background: var(--blue); color: #fff; font-size:17px; font-weight: 600; border: none; cursor: pointer; font-family: inherit; }
+  .wm-no  { flex: 1; padding: 9px; border-radius: 8px; background: var(--surface2); color: var(--text); font-size:17px; border: 1px solid var(--border); cursor: pointer; font-family: inherit; }
   .wm-yes:hover { opacity: 0.88; }
   .wm-no:hover  { background: var(--border); }
 
@@ -561,7 +640,7 @@
     background: var(--surface);
     border-top: 1px solid var(--border);
     padding: 6px 24px;
-    font-size:22px;
+    font-size:15px;
     color: var(--muted);
     z-index: 100;
   }
@@ -635,8 +714,11 @@
 <!-- Toolbar + table -->
 <div class="toolbar">
   <input type="text" id="search" placeholder="Search ad name…" oninput="rerender()">
-  <select id="month-filter" onchange="activeMonth=this.value;rerender()" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:24px;cursor:pointer;">
+  <select id="month-filter" onchange="activeMonth=this.value;rerender()" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:16px;cursor:pointer;">
     <option value="all">All months</option>
+  </select>
+  <select id="result-filter" onchange="activeResultType=this.value;rerender()" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:16px;cursor:pointer;">
+    <option value="all">All result types</option>
   </select>
   <span class="count-badge" id="row-count">0 ads</span>
 </div>
@@ -653,6 +735,15 @@
     <span class="spend-tile-delete" onclick="event.stopPropagation();deleteSpendImage()" title="Remove image">✕</span>
   </div>
   <input type="file" id="spend-upload" accept=".html,text/html" style="display:none" onchange="handleSpendUpload(event)">
+</div>
+
+<!-- UA Creative Report -->
+<div class="ua-report-section">
+  <h2 class="ua-report-toggle" onclick="toggleUAReport()">
+    <span id="ua-report-caret">▸</span> UA Creative Report
+    <span class="ua-report-hint">top 3 creative theo conversion type · filter hiện tại</span>
+  </h2>
+  <div id="ua-report-body" style="display:none"></div>
 </div>
 
 <div id="error-area"></div>
@@ -698,6 +789,7 @@ let sortCol  = 'spend';
 let sortDir  = 'desc';
 let activeAcct   = 'all';
 let activeMonth  = 'all';
+let activeResultType = 'all';
 
 // ── Init dates ───────────────────────────────────────────────────────────────
 (function initDates() {
@@ -719,6 +811,11 @@ let activeMonth  = 'all';
   applyTheme(savedTheme);
   // Default light — clear any stale dark preference from old versions
   if (!localStorage.getItem('theme')) localStorage.setItem('theme', 'light');
+  // Restore UA report open state
+  if (localStorage.getItem('ua_report_open') === '1') {
+    document.getElementById('ua-report-body').style.display = 'flex';
+    document.getElementById('ua-report-caret').textContent = '▾';
+  }
 })();
 
 function toggleTheme() {
@@ -840,6 +937,16 @@ function populateMonthFilter() {
   sel.value = 'all';
 }
 
+// Populate result-type dropdown from loaded rows (distinct resultLabels)
+function populateResultFilter() {
+  const types = [...new Set(allRows.map(r => r.resultLabel).filter(Boolean))].sort();
+  const sel = document.getElementById('result-filter');
+  sel.innerHTML = '<option value="all">All result types</option>';
+  types.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; sel.appendChild(o); });
+  activeResultType = 'all';
+  sel.value = 'all';
+}
+
 // Case-insensitive startsWith match: adName "TW.122025C10 - ..." ↔ key "tw.122025c10"
 function getSheetRow(adName) {
   const lower = adName.toLowerCase();
@@ -867,38 +974,62 @@ const ACTION_LABELS = {
   'Subscribe':            'Subscribe',
   'StartTrial':           'Start-trial',
   'Contact':              'Contact',
+  'messaging_conversation_started_7d': 'Messaging',
+  'total_messaging_connection':        'Messaging',
+  'mobile_app_install':                'App Install',
+  'fb_pixel_complete_registration':    'Completed Registration',
+  'fb_pixel_purchase':                 'Purchase',
+  'fb_pixel_lead':                     'Lead',
+  'fb_pixel_add_to_cart':              'Add-to-cart',
+  'fb_pixel_initiate_checkout':        'Begin-checkout',
+  'fb_pixel_view_content':             'View Content',
 };
 
 // Extract human label from Meta indicator string.
 // indicator examples:
 //   "conversions:offsite_conversion.fb_pixel_custom.EntryTestResult"
 //   "actions:offsite_conversion.custom.2990620707796144"
+//   "actions:mobile_app_install"
 function labelFromIndicator(indicator) {
   if (!indicator) return '';
   if (indicator.includes('.custom.')) return 'Custom Conv.';
-  const last = indicator.split('.').pop();
-  return ACTION_LABELS[last] || last;
+  const clean = indicator.split(':').pop();   // strip "actions:"/"conversions:" prefix
+  const last  = clean.split('.').pop();        // last segment = event key
+  if (ACTION_LABELS[last]) return ACTION_LABELS[last];
+  // Prettify fb_pixel_* fallbacks not explicitly mapped
+  return last.replace(/^fb_pixel_/, '').replace(/_/g, ' ');
 }
 
-// results field from raw API = [{indicator:"conversions:offsite_conversion.fb_pixel_custom.EntryTestResult"}]
-// indicator tells us WHAT event = label source. NO count inside results.
-// count comes from actions array: offsite_conversion.fb_pixel_custom entry.
+// results field from raw API = [{ indicator:"actions:offsite_conversion.fb_pixel_initiate_checkout",
+//                                 values:[{ value:"31" }] }]
+// indicator = WHAT event (label). values = the count, and it matches the Ads Manager
+// "Results" column exactly (correct objective + attribution). Use it as source of truth.
+// Old logic guessed the count from the actions array via hardcoded action_types — wrong
+// whenever an ad had multiple custom events or a non-pixel objective (messaging, etc.).
+// results[0] = { indicator, values:[{attribution_windows:[...], value}] }
+// values chứa 1 entry/window + 1 entry "default". Entry "default" = đúng cột Results
+// của Ads Manager (đã dedupe combined attribution). Lấy nó làm count.
+// Nếu values vắng mặt → objective đó có 0 result (vd custom conversion 0 lần). KHÔNG đoán
+// từ actions array bằng action_type cố định (gây grab nhầm event khác như fb_pixel_custom).
 function parseResultsField(resultsData, actionsArr) {
-  // Extract label from indicator
-  let label = '';
   if (Array.isArray(resultsData) && resultsData.length > 0) {
-    label = labelFromIndicator(resultsData[0].indicator || '');
+    const r     = resultsData[0];
+    const label = labelFromIndicator(r.indicator || '');
+
+    if (Array.isArray(r.values) && r.values.length > 0) {
+      const def = r.values.find(v => (v.attribution_windows || []).includes('default'));
+      const count = def
+        ? (parseInt(def.value) || 0)
+        : Math.max(...r.values.map(v => parseInt(v.value) || 0)); // fallback: max window
+      return { count, label };
+    }
+
+    // values absent → match indicator's exact action_type in actions (else 0)
+    const at  = (r.indicator || '').split(':').pop();           // strip "actions:"/"conversions:"
+    const hit = (actionsArr || []).find(a => a.action_type === at);
+    return { count: hit ? (parseInt(hit.value) || 0) : 0, label };
   }
-
-  // Extract count from actions
-  const actions = actionsArr || [];
-  const pixelCustom = actions.find(a => a.action_type === 'offsite_conversion.fb_pixel_custom');
-  if (pixelCustom) return { count: parseInt(pixelCustom.value) || 0, label };
-
-  const customConv = actions.find(a => a.action_type?.startsWith('offsite_conversion.custom.'));
-  if (customConv) return { count: parseInt(customConv.value) || 0, label };
-
-  return { count: 0, label };
+  return { count: 0, label: '' };
 }
 
 // ── Fetch one account (handles pagination) ───────────────────────────────────
@@ -1034,6 +1165,7 @@ async function fetchAll() {
     }
     setStatus(`Loaded ${allRows.length.toLocaleString()} ads · ${since} → ${until}`);
     populateMonthFilter();
+    populateResultFilter();
     rerender();
   } catch (e) {
     document.getElementById('error-area').innerHTML =
@@ -1074,8 +1206,8 @@ async function fetchCompare() {
   overlay.style.cssText = `position:fixed;inset:0;background:${isDark ? 'rgba(13,17,23,0.85)' : 'rgba(255,255,255,0.85)'};z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font-family:inherit;`;
   overlay.innerHTML = `
     <div style="width:36px;height:36px;border:3px solid #e3e2e0;border-top-color:#2383e2;border-radius:50%;animation:spin 0.7s linear infinite"></div>
-    <div id="compare-loading-msg" style="font-size:26px;color:#37352f;font-weight:500">Fetching prev period… (1/4)</div>
-    <div style="font-size:24px;color:#9b9a97">Adding delay between calls to avoid rate limit</div>
+    <div id="compare-loading-msg" style="font-size:17px;color:#37352f;font-weight:500">Fetching prev period… (1/4)</div>
+    <div style="font-size:16px;color:#9b9a97">Adding delay between calls to avoid rate limit</div>
   `;
   document.body.appendChild(overlay);
 
@@ -1137,6 +1269,7 @@ function rerender() {
   let rows = allRows.filter(r => {
     if (activeAcct !== 'all' && r.accountId !== activeAcct) return false;
     if (activeMonth !== 'all' && extractMonth(r.adName) !== activeMonth) return false;
+    if (activeResultType !== 'all' && r.resultLabel !== activeResultType) return false;
     if (query && !r.adName.toLowerCase().includes(query) && !r.adId.includes(query)) return false;
     return true;
   });
@@ -1157,6 +1290,77 @@ function rerender() {
   document.getElementById('row-count').textContent = `${rows.length} ads`;
   updateKPIs(rows);
   renderTable(rows);
+  renderUAReport(rows);
+}
+
+// ── UA Creative Report (top 3 creatives per conversion type) ─────────────────
+function toggleUAReport() {
+  const body  = document.getElementById('ua-report-body');
+  const caret = document.getElementById('ua-report-caret');
+  const open  = body.style.display === 'none';
+  body.style.display = open ? 'flex' : 'none';
+  caret.textContent  = open ? '▾' : '▸';
+  localStorage.setItem('ua_report_open', open ? '1' : '0');
+}
+
+// Conversion-type icons (by resultLabel)
+const UA_TYPE_ICONS = {
+  'EntryTestResult':        '🎯',
+  'Custom Conv.':           '🛒',
+  'Messaging':              '💬',
+  'Completed Registration': '📝',
+  'Begin-checkout':         '🛒',
+  'Purchase':               '💰',
+  'Lead':                   '🧲',
+};
+
+function renderUAReport(rows) {
+  const body = document.getElementById('ua-report-body');
+  if (!body) return;
+
+  // Group rows (already account/month/search-filtered) by conversion type
+  const groups = {}; // label → [rows with results>0]
+  for (const r of rows) {
+    if (!r.resultLabel || !(r.results > 0)) continue;
+    (groups[r.resultLabel] ||= []).push(r);
+  }
+
+  const labels = Object.keys(groups);
+  if (!labels.length) {
+    body.innerHTML = '<div class="ua-empty">Chưa có creative nào ra kết quả trong filter hiện tại.</div>';
+    return;
+  }
+
+  // Order cards by total results desc (most active type first)
+  const totals = {};
+  labels.forEach(l => totals[l] = groups[l].reduce((s, r) => s + r.results, 0));
+  labels.sort((a, b) => totals[b] - totals[a]);
+
+  body.innerHTML = labels.map(label => {
+    const top3 = groups[label].slice().sort((a, b) => b.results - a.results).slice(0, 3);
+    const icon = UA_TYPE_ICONS[label] || '📊';
+    const rowsHtml = top3.map((r, i) => {
+      const acct = ACCOUNTS[r.accountId];
+      const cpr  = r.cpr !== null ? `$${r.cpr.toFixed(2)}` : '—';
+      return `<div class="ua-row">
+        <span class="ua-rank ${i === 0 ? 'ua-rank-1' : ''}">${i + 1}</span>
+        <div class="ua-row-main">
+          <div class="ua-row-name" title="${escHtml(r.adName)}">${escHtml(r.adName)}</div>
+          <div class="ua-row-sub">
+            <span class="acct-dot" style="background:${acct.color}"></span>
+            <span style="color:${acct.color}">${acct.name}</span>
+            <span>· CPR ${cpr}</span>
+          </div>
+        </div>
+        <span class="ua-row-count">${r.results.toLocaleString()}</span>
+      </div>`;
+    }).join('');
+    return `<div class="ua-card">
+      <div class="ua-card-head"><span>${icon} ${escHtml(label)}</span>
+        <span class="ua-card-total">${totals[label].toLocaleString()} total</span></div>
+      ${rowsHtml}
+    </div>`;
+  }).join('');
 }
 
 // ── KPIs ─────────────────────────────────────────────────────────────────────
@@ -1166,7 +1370,7 @@ function kpiDelta(curr, prev, invert = false) {
   const up    = invert ? pct < 0 : pct >= 0;
   const color = up ? '#3fb950' : '#f85149';
   const arrow = pct >= 0 ? '↑' : '↓';
-  return `<div style="font-size:22px;color:${color};margin-top:2px">${arrow}${Math.abs(pct).toFixed(1)}% vs prev</div>`;
+  return `<div style="font-size:15px;color:${color};margin-top:2px">${arrow}${Math.abs(pct).toFixed(1)}% vs prev</div>`;
 }
 
 function updateKPIs(rows) {
@@ -1204,7 +1408,7 @@ function updateKPIs(rows) {
 const COLS = [
   { key: 'adName',      label: 'Ad',          align: 'left',  fmt: null },
   { key: 'spend',       label: 'Spend',     align: 'right', fmt: r => { const p = compareMap[r.adId]; return r.spend > 0 ? `$${r.spend.toFixed(2)}${deltaBadge(r.spend, p?.spend)}` : '<span class="na">—</span>'; } },
-  { key: 'results',     label: 'Results',   align: 'right', fmt: r => { const p = compareMap[r.adId]; return r.results > 0 ? `${r.results.toLocaleString()}${r.resultLabel ? `<br><span style="font-size:20px;color:var(--muted);font-weight:400">${r.resultLabel}</span>` : ''}${deltaBadge(r.results, p?.results)}` : '<span class="na">0</span>'; } },
+  { key: 'results',     label: 'Results',   align: 'right', fmt: r => { const p = compareMap[r.adId]; return r.results > 0 ? `${r.results.toLocaleString()}${r.resultLabel ? `<br><span style="font-size:13px;color:var(--muted);font-weight:400">${r.resultLabel}</span>` : ''}${deltaBadge(r.results, p?.results)}` : '<span class="na">0</span>'; } },
   { key: 'cpr',         label: 'CPR',       align: 'right', fmt: r => { const p = compareMap[r.adId]; return r.cpr !== null ? `$${r.cpr.toFixed(2)}${deltaBadge(r.cpr, p?.cpr, true)}` : '<span class="na">—</span>'; } },
   { key: 'cpm',         label: 'CPM',       align: 'right', fmt: r => { const p = compareMap[r.adId]; return r.cpm > 0 ? `$${r.cpm.toFixed(2)}${deltaBadge(r.cpm, p?.cpm, true)}` : '<span class="na">—</span>'; } },
   { key: 'cpc',         label: 'CPC',       align: 'right', fmt: r => { const p = compareMap[r.adId]; return r.cpc > 0 ? `$${r.cpc.toFixed(2)}${deltaBadge(r.cpc, p?.cpc, true)}` : '<span class="na">—</span>'; } },
@@ -1224,7 +1428,7 @@ function deltaBadge(curr, prev, invert = false) {
   const up    = invert ? pct < 0 : pct >= 0;
   const color = up ? '#3fb950' : '#f85149';
   const arrow = pct >= 0 ? '↑' : '↓';
-  return `<br><span style="font-size:20px;color:${color}">${arrow}${Math.abs(pct).toFixed(1)}%</span>`;
+  return `<br><span style="font-size:13px;color:${color}">${arrow}${Math.abs(pct).toFixed(1)}%</span>`;
 }
 
 function fmtRate(val, color) {
@@ -1293,6 +1497,7 @@ function exportCSV() {
   const rows   = allRows.filter(r => {
     if (activeAcct !== 'all' && r.accountId !== activeAcct) return false;
     if (activeMonth !== 'all' && extractMonth(r.adName) !== activeMonth) return false;
+    if (activeResultType !== 'all' && r.resultLabel !== activeResultType) return false;
     if (query && !r.adName.toLowerCase().includes(query)) return false;
     return true;
   });
@@ -1461,7 +1666,7 @@ initWelcome();
 <!-- Creative preview popover -->
 <div id="creative-popover">
   <div class="cp-header">
-    <span style="font-size:20px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px">Creative Preview</span>
+    <span style="font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px">Creative Preview</span>
     <button class="cp-close" onclick="closePopover()">✕</button>
   </div>
   <div class="cp-img-wrap" id="cp-img-wrap">

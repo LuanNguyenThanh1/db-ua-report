@@ -6,6 +6,20 @@
 - **Bỏ cột Status** + filter status dropdown + toàn bộ code manual-status (picker, localStorage, STATUS_META)
 - **Font x2** — gấp đôi toàn bộ 50 giá trị font-size cho dễ đọc trên desktop
 - Version tag footer → v1.5.3
+- **Bugfix Results sai (account TW-TOEIC 03 và mọi account):** `parseResultsField` cũ đoán count từ `actions` array bằng action_type hardcode → sai khi ad có nhiều custom event hoặc objective non-pixel (messaging). Vd Begin-checkout hiện 90 thay vì 31, messaging hiện 2 thay vì 22.
+  - Fix: lấy count trực tiếp từ `results[].values` (= đúng cột Results của Ads Manager, đúng objective + attribution). Fallback actions array chỉ khi thiếu values.
+  - Fix double-count: `results[].values` có nhiều entry (7d_click, 1d_view, **default**). Entry `default` = đúng số Ads Manager (combined dedupe) → lấy entry `default`, không sum (tránh C152=168).
+  - Fix over-count khi objective = 0: nếu `results` có indicator nhưng KHÔNG có `values` (vd custom conversion 0 lần) → count=0, không đoán mù từ actions array (tránh C61 hiện 2 thay vì 0).
+  - **Verified với data thật TW-TOEIC 03:** C152=84, C62=31, C6=22, C61=0 — khớp Ads Manager.
+- **Tile mới "UA Creative Report"** (dưới Weekly Spend Report):
+  - Auto group creative theo conversion type (EntryTestResult, Custom Conv., Messaging, Completed Registration...), show top 3 mỗi type rank theo results count
+  - Layout: card hàng ngang scroll-x, collapsible (lưu trạng thái localStorage), header có total/type
+  - Bám theo filter account + month + search hiện tại
+  - Mỗi dòng: rank, ad name, account dot, CPR, results count
+  - ⚠ Hạn chế: mọi custom conversion gộp chung label "Custom Conv." (label không tách được theo custom ID)
+- **Filter mới "Result type"** cạnh month filter — lọc creative theo conversion type (populate động từ data), áp cả table + CSV export
+- **Fix label:** `labelFromIndicator` strip prefix `actions:`/`conversions:` + map thêm `mobile_app_install`→App Install, `fb_pixel_complete_registration`→Completed Registration, các fb_pixel_* khác; fallback prettify thay vì hiện raw string
+  - Thêm nhãn `messaging_conversation_started_7d` → "Messaging"
 
 ---
 
