@@ -18,6 +18,7 @@
   - Mỗi dòng: rank, ad name, account dot, CPR, results count
   - ⚠ Hạn chế: mọi custom conversion gộp chung label "Custom Conv." (label không tách được theo custom ID)
 - **Filter mới "Result type"** cạnh month filter — lọc creative theo conversion type (populate động từ data), áp cả table + CSV export
+- **Sticky header zone:** Controls + Account tabs + KPI + Toolbar neo cứng (position:sticky) khi scroll table. Table thead pin ngay dưới (offset = chiều cao zone, tính động qua `--sticky-h`, cập nhật khi resize/đổi filter). Header title không neo.
 - **Fix label:** `labelFromIndicator` strip prefix `actions:`/`conversions:` + map thêm `mobile_app_install`→App Install, `fb_pixel_complete_registration`→Completed Registration, các fb_pixel_* khác; fallback prettify thay vì hiện raw string
   - Thêm nhãn `messaging_conversation_started_7d` → "Messaging"
 

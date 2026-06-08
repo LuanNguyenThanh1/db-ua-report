@@ -72,6 +72,9 @@
     align-items: center;
     gap: 10px;
     background: var(--surface);
+    position: sticky;
+    top: 0;
+    z-index: 200;
   }
   header h1 { font-size:20px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
   .badge {
@@ -404,6 +407,14 @@
   @keyframes spin { to { transform: rotate(360deg); } }
 
   /* ── Table ── */
+  /* ── Sticky zone (controls + tabs + KPI + toolbar) ── */
+  #sticky-zone {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--bg);
+  }
+
   .table-wrap { overflow-x: auto; padding: 0 28px 40px; }
   table { width: 100%; border-collapse: collapse; font-size:16px; }
   thead th {
@@ -418,7 +429,8 @@
     white-space: nowrap;
     border-bottom: 1px solid var(--border);
     position: sticky;
-    top: 0;
+    top: var(--sticky-h, 60px); /* pin below sticky zone */
+    z-index: 10;
     cursor: pointer;
     user-select: none;
   }
@@ -654,6 +666,8 @@
   <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">☀ Light</button>
 </header>
 
+<!-- Sticky zone: controls + account tabs + KPI + toolbar -->
+<div id="sticky-zone">
 <!-- Controls -->
 <div class="controls">
   <div class="field">
@@ -722,6 +736,7 @@
   </select>
   <span class="count-badge" id="row-count">0 ads</span>
 </div>
+</div><!-- /sticky-zone -->
 
 <!-- Weekly Spend Report -->
 <div class="spend-report-section">
@@ -816,6 +831,7 @@ let activeResultType = 'all';
     document.getElementById('ua-report-body').style.display = 'flex';
     document.getElementById('ua-report-caret').textContent = '▾';
   }
+  syncStickyHeight();
 })();
 
 function toggleTheme() {
@@ -878,6 +894,14 @@ function renderSpendImage(htmlContent) {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const setStatus = msg => document.getElementById('status-msg').textContent = msg;
+
+// Sync table thead offset to the sticky-zone height (so header row pins right below it)
+function syncStickyHeight() {
+  const z = document.getElementById('sticky-zone');
+  if (!z) return;
+  document.documentElement.style.setProperty('--sticky-h', z.offsetHeight + 'px');
+}
+window.addEventListener('resize', syncStickyHeight);
 
 // Parse a single CSV line (handles quoted fields)
 function parseCSVLine(line) {
@@ -1291,6 +1315,7 @@ function rerender() {
   updateKPIs(rows);
   renderTable(rows);
   renderUAReport(rows);
+  syncStickyHeight();
 }
 
 // ── UA Creative Report (top 3 creatives per conversion type) ─────────────────
