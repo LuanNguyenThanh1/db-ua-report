@@ -2,7 +2,14 @@
 
 ---
 
-## v1.5.2 (build từ v1.5.1 — status thủ công, latest)
+## v1.5.3 (build từ v1.5.2, latest)
+- **Bỏ cột Status** + filter status dropdown + toàn bộ code manual-status (picker, localStorage, STATUS_META)
+- **Font x2** — gấp đôi toàn bộ 50 giá trị font-size cho dễ đọc trên desktop
+- Version tag footer → v1.5.3
+
+---
+
+## v1.5.2 (build từ v1.5.1 — status thủ công)
 **Thay đổi lớn:** Bỏ HẾT auto-classification (floor, CPR benchmark, top-performer, delta). Status giờ user tự gán tay.
 - Xóa: `getCreativeStatus`, `computeAccountFloors`, `isTopPerformer`, `getBenchmarkCPR`, `CPR_BENCHMARKS`, các threshold const
 - **Thêm cột "Status"** ngay cạnh cột Ad — dropdown chọn tay 1 trong 5: 🏆 Performing / 📉 Fatigue / 🆕 New / ○ Neutral / → Stable (hoặc bỏ trống)
